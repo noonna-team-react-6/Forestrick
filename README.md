@@ -1,4 +1,4 @@
-# AI Docs Flow
+# Forestrick
 
 ## 실행 방법
 
