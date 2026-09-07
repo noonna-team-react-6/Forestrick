@@ -26,12 +26,12 @@ npm run preview
 
 ## 설치된 라이브러리
 
-| 패키지 | 버전 | 용도 |
-| --- | --- | --- |
-| react | ^19.2.8 | UI 라이브러리 |
-| react-dom | ^19.2.8 | React DOM 렌더링 |
-| react-router-dom | ^7.18.3 | 페이지 라우팅 |
-| axios | ^1.20.0 | HTTP 요청 |
+| 패키지           | 버전    | 용도             |
+| ---------------- | ------- | ---------------- |
+| react            | ^19.2.8 | UI 라이브러리    |
+| react-dom        | ^19.2.8 | React DOM 렌더링 |
+| react-router-dom | ^7.18.3 | 페이지 라우팅    |
+| axios            | ^1.20.0 | HTTP 요청        |
 
 개발 도구는 Vite(^8.2.2)와 ESLint를 사용합니다.
 
@@ -40,25 +40,38 @@ npm run preview
 ```text
 ai-docs-flow/
 ├── src/
-│   ├── main.jsx
-│   ├── App.jsx
-│   ├── App.css
-│   ├── index.css
-│   └── pages/
-│       ├── home/
-│       │   └── HomePage.jsx              # 정하린
-│       ├── assistant/
-│       │   └── AssistantPage.jsx         # 이상진
-│       ├── official/
-│       │   └── OfficialDocumentPage.js   # 이상진
-│       ├── analysis/
-│       │   └── AnalysisPage.jsx          # 김혜연
-│       ├── editor/
-│       │   └── DocumentEditorPage.jsx    # 정하린
-│       └── archive/
-│           └── DocumentArchivePage.jsx   # 김혜연
+│   ├── api/                                # OpenAI 등 API 호출
+│   ├── assets/                             # 이미지, 아이콘
+│   ├── components/                         # 공통 UI (Navbar, Footer, Button — 정하린)
+│   ├── data/
+│   │   └── constants.js                    # 더미 데이터 (문서 종류, 예시 문구)
+│   ├── hooks/                              # 커스텀 훅
+│   ├── pages/
+│   │   ├── home/
+│   │   │   └── HomePage.jsx                # `/` 서비스 소개 · 기능 이동 (정하린)
+│   │   ├── assistant/
+│   │   │   └── AssistantPage.jsx           # `/assistant` 업무 분석 · 문서 생성 (이상진)
+│   │   ├── official/
+│   │   │   └── OfficialDocumentPage.js     # `/official` 공문 자동 생성 (이상진)
+│   │   ├── analysis/
+│   │   │   └── AnalysisPage.jsx            # `/analysis` 문서에서 업무 정보 추출 (김혜연)
+│   │   ├── editor/
+│   │   │   └── DocumentEditorPage.jsx      # `/editor` AI 문서 교정 · 문체 변경 (정하린)
+│   │   └── archive/
+│   │       └── DocumentArchivePage.jsx     # `/archive` 문서 보관함 (김혜연)
+│   ├── styles/
+│   │   ├── App.css
+│   │   └── index.css
+│   ├── utils/                              # 공통 유틸 함수
+│   ├── App.jsx                             # 라우트 6개 등록
+│   └── main.jsx                            # 엔트리, BrowserRouter
+├── .env                                    # VITE_OPENAI_API_KEY (Git 제외)
+├── .gitignore
+├── eslint.config.js
 ├── index.html
 ├── package.json
+├── package-lock.json
+├── vite.config.js
 └── README.md
 ```
 
@@ -108,11 +121,11 @@ git checkout -b feat/home
 
 브랜치 이름은 `유형/작업내용` 형식을 사용합니다.
 
-| 예시 | 설명 |
-| --- | --- |
-| `feat/assistant` | Assistant 페이지 기능 |
-| `fix/editor-typo` | 에디터 버그 수정 |
-| `docs/readme` | README 수정 |
+| 예시              | 설명                  |
+| ----------------- | --------------------- |
+| `feat/assistant`  | Assistant 페이지 기능 |
+| `fix/editor-typo` | 에디터 버그 수정      |
+| `docs/readme`     | README 수정           |
 
 작업이 끝나면 원격에 올리고 PR을 엽니다.
 
@@ -131,21 +144,21 @@ Feat: 공문 생성 페이지 라우트 추가
 Fix: 분석 페이지 이동 오류 수정
 ```
 
-| 커밋 유형 | 의미 |
-| --- | --- |
-| `Feat` | 새로운 기능 추가 |
-| `Fix` | 버그 수정 |
-| `Docs` | 문서 수정 |
-| `Style` | 코드 포맷팅, 세미콜론 누락 등 동작 변경이 없는 경우 |
-| `Refactor` | 코드 리팩토링 |
-| `Test` | 테스트 코드 추가 또는 수정 |
-| `Chore` | 패키지 매니저, `.gitignore` 등 기타 수정 |
-| `Design` | CSS 등 UI 디자인 변경 |
-| `Comment` | 주석 추가 및 변경 |
-| `Rename` | 파일 또는 폴더 이름 변경, 이동 |
-| `Remove` | 파일 삭제만 수행한 경우 |
-| `!BREAKING CHANGE` | 큰 API 변경 |
-| `!HOTFIX` | 치명적인 버그를 급하게 수정 |
+| 커밋 유형          | 의미                                                |
+| ------------------ | --------------------------------------------------- |
+| `Feat`             | 새로운 기능 추가                                    |
+| `Fix`              | 버그 수정                                           |
+| `Docs`             | 문서 수정                                           |
+| `Style`            | 코드 포맷팅, 세미콜론 누락 등 동작 변경이 없는 경우 |
+| `Refactor`         | 코드 리팩토링                                       |
+| `Test`             | 테스트 코드 추가 또는 수정                          |
+| `Chore`            | 패키지 매니저, `.gitignore` 등 기타 수정            |
+| `Design`           | CSS 등 UI 디자인 변경                               |
+| `Comment`          | 주석 추가 및 변경                                   |
+| `Rename`           | 파일 또는 폴더 이름 변경, 이동                      |
+| `Remove`           | 파일 삭제만 수행한 경우                             |
+| `!BREAKING CHANGE` | 큰 API 변경                                         |
+| `!HOTFIX`          | 치명적인 버그를 급하게 수정                         |
 
 ### PR
 
