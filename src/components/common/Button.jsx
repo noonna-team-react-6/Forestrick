@@ -9,6 +9,10 @@ const VARIANTS = {
     "&:hover": {
       backgroundColor: "#2563EB",
     },
+    "&:active": {
+      backgroundColor: "#1D4ED8",
+      transform: "scale(0.98)",
+    },
     "&.Mui-disabled": {
       backgroundColor: "#3B82F6",
       color: "#fff",
@@ -23,11 +27,71 @@ const VARIANTS = {
       backgroundColor: "rgba(255, 255, 255, 0.08)",
       borderColor: "rgba(255, 255, 255, 0.35)",
     },
+    "&:active": {
+      backgroundColor: "rgba(255, 255, 255, 0.14)",
+      transform: "scale(0.98)",
+    },
     "&.Mui-disabled": {
       color: "#fff",
       borderColor: "rgba(255, 255, 255, 0.16)",
       opacity: 0.4,
     },
+  },
+  gradient: {
+    backgroundColor: "transparent",
+    backgroundImage: "linear-gradient(180deg, #5BA3FF 0%, #3B7BFF 48%, #2E5BFF 100%)",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "100% 100%",
+    color: "#fff",
+    border: 0,
+    boxShadow: "none",
+    filter: "drop-shadow(0 6px 14px rgba(47, 91, 255, 0.45))",
+    "&:hover": {
+      backgroundImage: "linear-gradient(180deg, #6BB0FF 0%, #3B7BFF 50%, #2550F0 100%)",
+      boxShadow: "none",
+      filter: "drop-shadow(0 8px 16px rgba(47, 91, 255, 0.55))",
+    },
+    "&:active": {
+      backgroundImage: "linear-gradient(180deg, #3B7BFF 0%, #2E5BFF 50%, #1D4ED8 100%)",
+      boxShadow: "none",
+      filter: "drop-shadow(0 4px 10px rgba(47, 91, 255, 0.35))",
+      transform: "scale(0.98)",
+    },
+    "&.Mui-disabled": {
+      backgroundImage: "linear-gradient(180deg, #5BA3FF 0%, #3B7BFF 48%, #2E5BFF 100%)",
+      color: "#fff",
+      opacity: 0.4,
+      boxShadow: "none",
+      filter: "none",
+    },
+  },
+};
+
+const SELECTED = {
+  primary: {
+    backgroundColor: "#2563EB",
+    boxShadow: "none",
+    "&:hover": {
+      backgroundColor: "#1D4ED8",
+    },
+    "&:active": {
+      backgroundColor: "#1E40AF",
+    },
+  },
+  outline: {
+    backgroundColor: "#3B82F6",
+    color: "#fff",
+    border: "1px solid transparent",
+    "&:hover": {
+      backgroundColor: "#2563EB",
+      borderColor: "transparent",
+    },
+    "&:active": {
+      backgroundColor: "#1D4ED8",
+    },
+  },
+  gradient: {
+    filter: "brightness(1.05) drop-shadow(0 6px 14px rgba(47, 91, 255, 0.5))",
   },
 };
 
@@ -57,7 +121,8 @@ const SIZES = {
 
 /**
  * @param {object} [props]
- * @param {"primary" | "outline"} [props.variant]
+ * @param {"primary" | "outline" | "gradient"} [props.variant]
+ * @param {boolean} [props.selected]
  * @param {"sm" | "md" | "lg"} [props.size]
  * @param {string} [props.className]
  * @param {import("react").ReactNode} [props.children]
@@ -68,6 +133,7 @@ const SIZES = {
  */
 export default function Button({
   variant = "primary",
+  selected = false,
   size = "md",
   className,
   children,
@@ -78,6 +144,7 @@ export default function Button({
   ...props
 }) {
   const variantSx = VARIANTS[variant] ?? VARIANTS.primary;
+  const selectedSx = selected ? (SELECTED[variant] ?? SELECTED.primary) : null;
   const sizeSx = SIZES[size] ?? SIZES.md;
 
   return (
@@ -97,6 +164,7 @@ export default function Button({
         boxShadow: "none",
         gap: 0.75,
         ...variantSx,
+        ...selectedSx,
         ...sizeSx,
         ...sx,
       }}

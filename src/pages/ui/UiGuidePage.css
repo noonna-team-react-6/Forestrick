@@ -1,0 +1,23 @@
+.modal-test-frame {
+  border: 3px dashed #22c55e !important;
+}
+
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 88px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e5e7eb;
+  font-size: 11px;
+  text-align: center;
+}
