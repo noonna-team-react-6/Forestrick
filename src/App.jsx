@@ -26,10 +26,10 @@ export default function App() {
         <Route path="editor" element={<DocumentEditorPage />} />
 
         {/* 혜연 */}
-        <Route path="/archive" element={<DocumentArchivePage />} />
+        <Route path="archive" element={<DocumentArchivePage />} />
 
         {/* UI 가이드 */}
-        <Route path="/ui" element={<UiGuidePage />} />
+        <Route path="ui" element={<UiGuidePage />} />
       </Route>
     </Routes>
   );
