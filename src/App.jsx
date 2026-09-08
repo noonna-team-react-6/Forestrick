@@ -7,6 +7,7 @@ import OfficialDocumentPage from "./pages/official/OfficialDocumentPage";
 import AnalysisPage from "./pages/analysis/AnalysisPage";
 import DocumentEditorPage from "./pages/editor/DocumentEditorPage";
 import DocumentArchivePage from "./pages/archive/DocumentArchivePage";
+import UiGuidePage from "./pages/ui/UiGuidePage";
 
 export default function App() {
   return (
@@ -25,8 +26,10 @@ export default function App() {
         <Route path="editor" element={<DocumentEditorPage />} />
 
         {/* 혜연 */}
-        <Route path="archive" element={<DocumentArchivePage />} />
-      </Route>
+        <Route path="/archive" element={<DocumentArchivePage />} />
+
+        {/* UI 가이드 */}
+        <Route path="/ui" element={<UiGuidePage />} />
     </Routes>
   );
 }
