@@ -15,7 +15,7 @@ const PROVIDERS = {
   },
   gemini: {
     url: (apiKey) =>
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
     apiKey: import.meta.env.VITE_GEMINI_API_KEY,
     headers: () => ({}),
     body: (prompt) => ({
