@@ -1,5 +1,6 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
+import AppLayout from "./layout/AppLayout";
 import HomePage from "./pages/home/HomePage";
 import AssistantPage from "./pages/assistant/AssistantPage";
 import OfficialDocumentPage from "./pages/official/OfficialDocumentPage";
@@ -10,26 +11,25 @@ import UiGuidePage from "./pages/ui/UiGuidePage";
 
 export default function App() {
   return (
-    <>
-      <Routes>
+    <Routes>
+      <Route path="/" element={<AppLayout />}>
         {/* 하린 */}
         <Route index element={<HomePage />} />
         {/* 상진 */}
-        <Route path="/assistant" element={<AssistantPage />} />
-        <Route path="/official" element={<OfficialDocumentPage />} />
+        <Route path="assistant" element={<AssistantPage />} />
+        <Route path="official" element={<OfficialDocumentPage />} />
 
         {/* 혜연 */}
-        <Route path="/analysis" element={<AnalysisPage />} />
+        <Route path="analysis" element={<AnalysisPage />} />
 
         {/* 하린 */}
-        <Route path="/editor" element={<DocumentEditorPage />} />
+        <Route path="editor" element={<DocumentEditorPage />} />
 
         {/* 혜연 */}
         <Route path="/archive" element={<DocumentArchivePage />} />
 
         {/* UI 가이드 */}
         <Route path="/ui" element={<UiGuidePage />} />
-      </Routes>
-    </>
+    </Routes>
   );
 }
