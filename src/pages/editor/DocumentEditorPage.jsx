@@ -17,9 +17,7 @@ function DocumentEditorPage() {
     import.meta.env.VITE_AI_PROVIDER || "gemini"
   );
 
-  const [content, setContent] = useState(
-    "사내 업무 환경 개선을 위해 다음 달부터 새로운 협업 시스템을 도입할 예정입니다. 모든 구성원은 시스템 사용 방법을 확인해 주시고 업무에 차질이 발생하지 않도록 사전에 필요한 준비를 완료해 주시기 바랍니다."
-  );
+  const [content, setContent] = useState("");
 
   const [result, setResult] = useState("");
 
@@ -119,16 +117,14 @@ ${content}
             </span>
           </div>
 
-          <div className="editor-textarea-wrapper">
-            <textarea
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-                setIsApplied(false);
-              }}
-              placeholder="수정할 문장을 입력하세요."
-            />
-          </div>
+          <textarea
+           value={content}
+           onChange={(e) => {
+           setContent(e.target.value);
+           setIsApplied(false);
+           }}
+           placeholder="예시) 다음 달부터 새로운 협업 시스템을 도입할 예정입니다. 모든 구성원은 사용 방법을 확인하고 사전에 필요한 준비를 완료해 주시기 바랍니다."
+           />
 
           <div className="editor-actions">
             {actions.map((action) => (
@@ -138,8 +134,8 @@ ${content}
                 size="sm"
                 selected={selectedAction === action}
                 onClick={() => handleAction(action)}
-                disabled={loading}
-              >
+                disabled={loading || !content.trim()}
+                 >
                 {action === "문장 다듬기" && (
                   <IconWand size={14} />
                 )}
@@ -160,10 +156,16 @@ ${content}
             </span>
           </div>
 
-          <div className="editor-result">
-            {loading && !result
-              ? "문장을 수정하고 있습니다..."
-              : result}
+          <div
+            className={`editor-result ${
+            !result && !loading ? "is-placeholder" : ""
+            }`}
+           >
+           {loading
+            ? "문장을 수정하고 있습니다..."
+            : result
+            ? result
+            : "편집 결과가 여기에 표시됩니다."}
           </div>
 
           <div className="editor-result-actions">
