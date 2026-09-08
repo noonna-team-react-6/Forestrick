@@ -33,7 +33,7 @@ const PROVIDERS = {
       "anthropic-dangerous-direct-browser-access": "true",
     }),
     body: (prompt) => ({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-5",
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     }),
