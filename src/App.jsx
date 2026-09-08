@@ -30,6 +30,7 @@ export default function App() {
 
         {/* UI 가이드 */}
         <Route path="/ui" element={<UiGuidePage />} />
+      </Route>
     </Routes>
   );
 }
