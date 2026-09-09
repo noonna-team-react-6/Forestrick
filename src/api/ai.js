@@ -1,4 +1,5 @@
 import axios from "axios";
+import { withHarness } from "./harness";
 
 const PROVIDERS = {
   openai: {
@@ -15,7 +16,7 @@ const PROVIDERS = {
   },
   gemini: {
     url: (apiKey) =>
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
     apiKey: import.meta.env.VITE_GEMINI_API_KEY,
     headers: () => ({}),
     body: (prompt) => ({
@@ -41,7 +42,7 @@ const PROVIDERS = {
   },
 };
 
-export async function generateAI(provider, prompt) {
+export async function generateAI(provider, prompt, { signal } = {}) {
   const config = PROVIDERS[provider];
 
   if (!config) {
@@ -50,18 +51,27 @@ export async function generateAI(provider, prompt) {
 
   if (!config.apiKey) {
     throw new Error(
-      `${provider} API 키가 설정되지 않았습니다. .env 파일을 확인하세요.`
+      `${provider} API 키가 설정되지 않았습니다. .env 파일을 확인하세요.`,
     );
   }
 
-  const url = typeof config.url === "function" ? config.url(config.apiKey) : config.url;
+  const url =
+    typeof config.url === "function" ? config.url(config.apiKey) : config.url;
 
-  const { data } = await axios.post(url, config.body(prompt), {
-    headers: {
-      "Content-Type": "application/json",
-      ...config.headers(config.apiKey),
-    },
-  });
+  const data = await withHarness(
+    provider,
+    (harnessSignal) =>
+      axios
+        .post(url, config.body(prompt), {
+          headers: {
+            "Content-Type": "application/json",
+            ...config.headers(config.apiKey),
+          },
+          signal: harnessSignal,
+        })
+        .then((res) => res.data),
+    { signal },
+  );
 
   return config.parse(data);
 }
