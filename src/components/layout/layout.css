@@ -1,22 +1,20 @@
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  font-family: Arial, sans-serif;
-}
-
 .app-layout {
+  --layout-background: #090e16;
+  --layout-surface: #111926;
+  --layout-surface-hover: #172235;
+  --layout-border: #223047;
+  --layout-text: #f8fafc;
+  --layout-text-secondary: #91a1b9;
   min-height: 100vh;
   padding-top: 64px;
   padding-left: 240px;
+  background: var(--layout-background);
+  color: var(--layout-text);
 }
 
 .navbar {
   position: fixed;
-  z-index: 1;
+  z-index: 5;
   top: 0;
   right: 0;
   left: 0;
@@ -25,8 +23,8 @@ body {
   align-items: center;
   gap: 24px;
   padding: 0 24px;
-  border-bottom: 1px solid #ddd;
-  background: #fff;
+  border-bottom: 1px solid var(--layout-border);
+  background: #0d131e;
 }
 
 .menu-button,
@@ -56,9 +54,23 @@ body {
   bottom: 0;
   left: 0;
   width: 240px;
-  padding: 24px;
-  border-right: 1px solid #ddd;
-  background: #fff;
+  padding: 28px 16px;
+  border-right: 1px solid var(--layout-border);
+  background: #0d131e;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 5px;
+}
+
+.sidebar-nav::before {
+  content: "WORKSPACE";
+  margin: 4px 10px 8px;
+  color: #71819a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
 }
 
 .navbar-brand,
@@ -68,19 +80,37 @@ body {
   text-decoration: none;
 }
 
+.navbar-brand img {
+  display: block;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
 .nav-search {
-  flex: 0 1 320px;
-  max-width: 320px;
+  flex: 1;
+  max-width: none;
   margin: 0;
 }
 
 .nav-search input {
   width: 100%;
   padding: 10px 14px;
-  border: 0;
-  border-radius: 10px;
-  background: #edf4fc;
+  border: 1px solid #1a2638;
+  border-radius: 999px;
+  outline: none;
+  background: #080d16;
+  color: var(--layout-text);
   font: inherit;
+}
+
+.nav-search input::placeholder {
+  color: #70819b;
+}
+
+.nav-search input:focus {
+  border-color: var(--color-primary);
 }
 
 .sr-only {
@@ -101,12 +131,28 @@ body {
 }
 
 .menu-link {
-  padding: 12px 8px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  color: var(--layout-text-secondary);
+  font-size: 13px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.menu-link:hover {
+  background: var(--layout-surface-hover);
+  color: var(--layout-text);
+}
+
+.menu-link.active {
+  background: linear-gradient(90deg, var(--color-primary), #3b82f6);
+  box-shadow: 0 6px 18px rgb(37 99 235 / 28%);
+  color: #fff;
 }
 
 .content {
   min-height: calc(100vh - 64px);
-  padding: 32px;
+  padding: 28px 32px;
+  background: var(--layout-background);
 }
 
 .breadcrumb {
@@ -125,7 +171,7 @@ body {
   position: absolute;
   inset: 0;
   border: 0;
-  background: rgb(0 0 0 / 35%);
+  background: rgb(0 0 0 / 65%);
 }
 
 .login-modal {
@@ -133,8 +179,10 @@ body {
   z-index: 1;
   width: min(400px, calc(100% - 40px));
   padding: 32px;
-  border-radius: 16px;
-  background: #fff;
+  border: 1px solid var(--layout-border);
+  border-radius: 14px;
+  background: var(--layout-surface);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
 }
 
 .modal-close-button {
@@ -143,6 +191,7 @@ body {
   right: 16px;
   border: 0;
   background: transparent;
+  color: var(--layout-text-secondary);
   font-size: 24px;
   cursor: pointer;
 }
@@ -159,8 +208,11 @@ body {
 .login-form input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--layout-border);
   border-radius: 6px;
+  outline: none;
+  background: #0b111b;
+  color: var(--layout-text);
 }
 
 .login-submit-button,
@@ -168,7 +220,7 @@ body {
   padding: 11px;
   border: 0;
   border-radius: 6px;
-  background: #0667e8;
+  background: var(--color-primary);
   color: #fff;
   cursor: pointer;
 }
@@ -193,7 +245,7 @@ body {
 .register-message {
   margin: 0;
   text-align: center;
-  color: #666;
+  color: var(--layout-text-secondary);
   font-size: 12px;
 }
 
@@ -222,7 +274,7 @@ body {
     inset: 0;
     display: block;
     border: 0;
-    background: rgb(0 0 0 / 30%);
+    background: rgb(0 0 0 / 60%);
   }
 
   .navbar {
@@ -235,9 +287,10 @@ body {
     width: 36px;
     height: 36px;
     place-items: center;
-    border: 1px solid #ddd;
+    border: 1px solid var(--layout-border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--layout-surface);
+    color: var(--layout-text);
     font-size: 18px;
   }
 
@@ -254,8 +307,8 @@ body {
     height: 36px;
     padding: 0 8px;
     border-radius: 18px;
-    background: #e8f1ff;
-    color: #0667e8;
+    background: var(--color-primary-light);
+    color: var(--color-primary-hover);
     font-size: 12px;
     font-weight: 700;
   }
@@ -268,8 +321,8 @@ body {
   .logged-in-actions .logout-button {
     margin: 0;
     padding: 7px;
-    background: #e8f1ff;
-    color: #0667e8;
+    background: var(--color-primary-light);
+    color: var(--color-primary-hover);
     font-size: 12px;
   }
 
@@ -282,7 +335,7 @@ body {
     align-items: center;
     gap: 10px;
     margin-bottom: 16px;
-    color: #0667e8;
+    color: #60a5fa;
     font-size: 13px;
     font-weight: 700;
   }

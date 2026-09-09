@@ -23,7 +23,7 @@ export default function NavBar({ onMenuClick }) {
           ☰
         </button>
         <NavLink className="navbar-brand" to="/">
-          Forestrick
+          <img src="/forestrick-logo-transparent.png" alt="Forestrick" />
         </NavLink>
         <form className="nav-search" role="search" onSubmit={(event) => event.preventDefault()}>
           <label className="sr-only" htmlFor="nav-search-input">
