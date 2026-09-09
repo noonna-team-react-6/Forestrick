@@ -42,7 +42,7 @@ const PROVIDERS = {
   },
 };
 
-export async function generateAI(provider, prompt) {
+export async function generateAI(provider, prompt, { signal } = {}) {
   const config = PROVIDERS[provider];
 
   if (!config) {
@@ -57,16 +57,19 @@ export async function generateAI(provider, prompt) {
 
   const url = typeof config.url === "function" ? config.url(config.apiKey) : config.url;
 
-  const data = await withHarness(provider, (signal) =>
-    axios
-      .post(url, config.body(prompt), {
-        headers: {
-          "Content-Type": "application/json",
-          ...config.headers(config.apiKey),
-        },
-        signal,
-      })
-      .then((res) => res.data)
+  const data = await withHarness(
+    provider,
+    (harnessSignal) =>
+      axios
+        .post(url, config.body(prompt), {
+          headers: {
+            "Content-Type": "application/json",
+            ...config.headers(config.apiKey),
+          },
+          signal: harnessSignal,
+        })
+        .then((res) => res.data),
+    { signal }
   );
 
   return config.parse(data);
