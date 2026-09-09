@@ -1,0 +1,38 @@
+.stamp-upload {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.stamp-upload__label {
+  margin: 0 0 0 4px;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.stamp-upload__input {
+  display: none;
+}
+
+.stamp-upload__preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.stamp-upload__preview img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.stamp-upload__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
