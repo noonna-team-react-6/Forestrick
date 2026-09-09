@@ -186,6 +186,12 @@
   opacity: 0.55;
 }
 
+.editor-result.is-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 
 /* =========================================================
    Editor Actions
