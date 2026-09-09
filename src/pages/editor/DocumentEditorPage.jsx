@@ -2,18 +2,21 @@ import { useState } from "react";
 import { useAI } from "../../hooks/useAI";
 
 import Button from "../../components/common/Button";
+import ModalFrame from "../../components/common/ModalFrame";
 
 import {
   IconSparkles,
-  IconWand,
   IconCopy,
   IconCheck,
 } from "../../components/common/Icons";
 
 import { documents } from "../../data/documents";
-import { EDIT_ACTIONS } from "../../data/constants";
+import { EDIT_OPTIONS } from "../../data/constants";
 
 import "./DocumentEditorPage.css";
+
+import EditOptions from "./EditOptions";
+import EditHistory from "./EditHistory";
 
 function DocumentEditorPage() {
   const { generate, loading } = useAI(
@@ -21,31 +24,39 @@ function DocumentEditorPage() {
   );
 
   const document = documents[0];
-  const actions = Object.keys(EDIT_ACTIONS);
 
   const [content, setContent] = useState(document.content);
   const [result, setResult] = useState("");
   const [selectedAction, setSelectedAction] =
   useState("문장 다듬기");
   const [isApplied, setIsApplied] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [selectedHistory, setSelectedHistory] = useState(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   const handleAction = async (action) => {
   setSelectedAction(action);
   setIsApplied(false);
 
+  const selectedOption = Object.values(EDIT_OPTIONS)
+    .flat()
+    .find((option) => option.label === action);
+
+  if (!selectedOption) return;
+
   const prompt = `
-  당신은 전문적인 AI 문서 편집기입니다.
+    당신은 전문적인 AI 문서 편집기입니다.
 
-  사용자가 입력한 문장의 의미와 핵심 정보는 유지해야 합니다.
+    사용자가 입력한 문장의 의미와 핵심 정보는 유지해야 합니다.
 
-  편집 요청:
-  ${EDIT_ACTIONS[action]}
+    편집 요청:
+    ${selectedOption.prompt}
 
-  원문:
-  ${content}
+    원문:
+    ${content}
 
-  수정된 문장만 출력하세요.
-  설명이나 따옴표는 붙이지 마세요.
+    수정된 문장만 출력하세요.
+    설명이나 따옴표는 붙이지 마세요.
   `;
 
   try {
@@ -54,6 +65,19 @@ function DocumentEditorPage() {
     const aiResult = await generate(prompt);
 
     setResult(aiResult);
+
+    setHistory((prev) => [
+     {
+       id: Date.now(),
+       action,
+       result: aiResult,
+       time: new Date().toLocaleTimeString("ko-KR", {
+       hour: "2-digit",
+       minute: "2-digit",
+      }),
+     },
+  ...prev,
+]);
   } catch (err) {
     console.error("AI 요청 실패:", err);
   }
@@ -69,6 +93,68 @@ function DocumentEditorPage() {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(result);
   };
+
+  const handleHistorySelect = (item) => {
+  setSelectedHistory(item);
+  setIsHistoryModalOpen(true);
+  };
+
+  const handleHistoryRestore = () => {
+  if (!selectedHistory) return;
+
+  setResult(selectedHistory.result);
+  setSelectedAction(selectedHistory.action);
+  setIsApplied(false);
+
+  setIsHistoryModalOpen(false);
+  setSelectedHistory(null);
+  };
+
+  const handleCustomRequest = async (request) => {
+  if (!request.trim()) return;
+
+  setSelectedAction("직접 요청");
+  setIsApplied(false);
+  setResult("");
+
+  const prompt = `
+    당신은 전문적인 AI 문서 편집기입니다.
+
+    사용자가 입력한 문서의 핵심 정보와 의미는 최대한 유지해야 합니다.
+
+    원문:
+    ${content}
+
+    사용자의 추가 요청:
+    ${request}
+
+    위 요청에 따라 문서를 수정해 주세요.
+
+    수정된 문장만 출력하세요.
+    설명이나 따옴표는 붙이지 마세요.
+  `;
+
+  try {
+    const aiResult = await generate(prompt);
+
+    setResult(aiResult);
+
+    setHistory((prev) => [
+      {
+        id: Date.now(),
+        action: `직접 요청: ${request}`,
+        result: aiResult,
+        time: new Date().toLocaleTimeString("ko-KR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+      ...prev,
+    ]);
+  } catch (err) {
+    console.error("AI 요청 실패:", err);
+  }
+};
 
   return (
     <div className="editor-page">
@@ -110,33 +196,46 @@ function DocumentEditorPage() {
 
           {/* 사용자가 AI 편집을 원하는 원문 입력 */}
           <textarea
-           value={content}
-           onChange={(e) => {
-           setContent(e.target.value);
-           setIsApplied(false);
-           }}
-           placeholder="예시) 다음 달부터 새로운 협업 시스템을 도입할 예정입니다. 모든 구성원은 사용 방법을 확인하고 사전에 필요한 준비를 완료해 주시기 바랍니다."
-           />
+            value={content}
+            onChange={(e) => {
+            setContent(e.target.value);
+            setIsApplied(false);
+            }}
+          placeholder="예시) 다음 달부터 새로운 협업 시스템을 도입할 예정입니다. 모든 구성원은 사용 방법을 확인하고 사전에 필요한 준비를 완료해 주시기 바랍니다."
+          />
 
-           {/* AI 편집 기능 버튼 */}
-          <div className="editor-actions">
-            {actions.map((action) => (
-              <Button
-                key={action}
-                variant="outline"
-                size="sm"
-                selected={selectedAction === action}
-                onClick={() => handleAction(action)}
-                disabled={loading || !content.trim()}
-                 >
-                {action === "문장 다듬기" && (
-                  <IconWand size={14} />
-                )}
+          <div className="quick-edit-options">
+            <Button
+              variant="outline"
+              size="sm"
+              selected={selectedAction === "문장 다듬기"}
+              onClick={() => handleAction("문장 다듬기")}
+              disabled={loading || !content.trim()}
+            >
+            문장 다듬기
+          </Button>
 
-                {action}
-              </Button>
-            ))}
-          </div>
+          <Button
+          variant="outline"
+          size="sm"
+          selected={selectedAction === "더 정중하게"}
+          onClick={() => handleAction("더 정중하게")}
+          disabled={loading || !content.trim()}
+          >
+          더 정중하게
+          </Button>
+
+          <Button
+          variant="outline"
+          size="sm"
+          selected={selectedAction === "영어"}
+          onClick={() => handleAction("영어")}
+          disabled={loading || !content.trim()}
+          >
+          영어
+          </Button>
+        </div>
+
         </article>
 
         {/* AI 편집 결과 영역 */}
@@ -192,8 +291,55 @@ function DocumentEditorPage() {
             </Button>
           </div>
         </article>
-      </section>
-    </div>
+            </section>
+
+      {/* 더 다양한 편집 옵션 */}
+      <EditOptions
+       selectedAction={selectedAction}
+       onAction={handleAction}
+       loading={loading}
+       hasContent={!!content.trim()}
+       onCustomRequest={handleCustomRequest}
+      />
+
+      <EditHistory
+       history={history}
+       onSelect={handleHistorySelect}
+      />
+
+      <ModalFrame
+        open={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        closeIcon
+        width="small"
+      >
+      <div className="history-restore-modal">
+          <h2>편집 기록으로 돌아가기</h2>
+
+          <p>
+            이 편집 기록으로 돌아가시겠습니까?
+          </p>
+
+       <div className="history-restore-actions">
+         <Button
+           variant="outline"
+           size="md"
+           onClick={() => setIsHistoryModalOpen(false)}
+         >
+           취소
+            </Button>
+
+            <Button
+              variant="gradient"
+              size="md"
+              onClick={handleHistoryRestore}
+            >
+          돌아가기
+            </Button>
+          </div>
+        </div>
+      </ModalFrame>
+       </div>
   );
 }
 
