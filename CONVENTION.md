@@ -84,13 +84,17 @@
 
 ## 3. Git 브랜치 · 커밋 컨벤션
 
-`main`에는 직접 push하지 않습니다. 기능 브랜치에서 작업한 뒤 PR로 합칩니다.
+`main`에는 직접 push하지 않습니다. 기능 브랜치는 `dev`에서 갈라져 나와 `dev`로 먼저 PR을 올리고, `dev`가 안정되면 `dev` → `main`으로 다시 PR을 올려 반영합니다.
+
+```
+feat/기능 브랜치 → dev → main
+```
 
 ### 브랜치
 
 ```bash
-git checkout main
-git pull origin main
+git checkout dev
+git pull origin dev
 git checkout -b feat/home
 ```
 
@@ -137,15 +141,17 @@ Fix: 분석 페이지 이동 오류 수정
 
 ### PR
 
-1. GitHub에서 `feat/home` → `main` 으로 Pull Request를 생성합니다.
+1. GitHub에서 `feat/home` → `dev` 로 Pull Request를 생성합니다.
 2. 제목은 커밋과 같이 `Feat: Home 페이지 기본 UI 추가` 형식을 따릅니다.
 3. 본문에는 변경 내용, 확인 방법, 관련 페이지를 적습니다.
 4. 담당자가 아닌 팀원에게 리뷰를 요청합니다.
-5. 승인 후 `main`에 merge하고, 로컬 `main`을 최신으로 맞춥니다.
+5. 승인 후 `dev`에 merge하고, 로컬 `dev`를 최신으로 맞춥니다.
 
 ```bash
-git checkout main
-git pull origin main
+git checkout dev
+git pull origin dev
 ```
+
+6. `dev`가 안정되면(기능 여러 개가 모이거나, 배포 전) `dev` → `main`으로 별도 PR을 올려 반영합니다.
 
 공통 파일(`App.jsx`, 공통 컴포넌트, `data/constants.js`)은 동시에 수정하지 않습니다. 겹치면 미리 팀원과 맞춥니다.
