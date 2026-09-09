@@ -1,0 +1,268 @@
+.editor-page {
+  width: 100%;
+  min-height: calc(100vh - 110px);
+  padding: 12px 24px 40px;
+  box-sizing: border-box;
+
+  background: #0b0f14;
+}
+
+
+/* =========================
+   Header
+========================= */
+
+.editor-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+}
+
+.editor-eyebrow {
+  margin-bottom: 6px;
+
+  color: #3b82f6;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.editor-page-header h1 {
+  margin: 0;
+
+  color: #f8fafc;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.editor-page-header p {
+  margin: 7px 0 0;
+
+  color: #64748b;
+  font-size: 13px;
+}
+
+
+/* =========================
+   AI Status
+========================= */
+
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 7px 12px;
+
+  border: 1px solid #1e3a5f;
+  border-radius: 999px;
+
+  background: #0f1d30;
+
+  color: #60a5fa;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+
+
+/* =========================
+   Grid
+========================= */
+
+.editor-grid {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+  gap: 16px;
+
+  width: 100%;
+}
+
+
+/* =========================
+   Card
+========================= */
+
+.editor-card {
+  display: flex;
+  flex-direction: column;
+
+  min-height: 440px;
+
+  padding: 18px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #202938;
+  border-radius: 15px;
+
+  background: #111722;
+}
+
+
+/* =========================
+   Card Header
+========================= */
+
+.editor-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: 14px;
+
+  border-bottom: 1px solid #202938;
+}
+
+.editor-card-header h2 {
+  margin: 0;
+
+  color: #f8fafc;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.character-count,
+.ai-recommend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 4px 8px;
+
+  border-radius: 6px;
+
+  background: #102b50;
+
+  color: #60a5fa;
+
+  font-size: 10px;
+  font-weight: 600;
+}
+
+
+/* =========================
+   Textarea
+========================= */
+
+.editor-card > textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 300px;
+  margin-top: 12px;
+  padding: 15px;
+  box-sizing: border-box;
+  resize: none;
+  outline: none;
+  border: 1px solid #293344;
+  border-radius: 11px;
+  background: #0d131d;
+  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.editor-card > textarea::placeholder {
+  color:   #cbd5e1;
+  opacity: 0.55;
+}
+
+.editor-card > textarea:focus {
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+/* =========================
+   AI Result
+========================= */
+
+.editor-result {
+  flex: 1;
+
+  min-height: 300px;
+
+  margin-top: 12px;
+  padding: 15px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #293344;
+  border-radius: 11px;
+
+  background: #0d131d;
+
+  color: #e2e8f0;
+
+  font-size: 13px;
+  line-height: 1.7;
+
+  white-space: pre-wrap;
+}
+
+.editor-result.is-placeholder {
+  color: #cbd5e1;
+  opacity: 0.55;
+}
+
+
+/* =========================
+   Actions
+========================= */
+
+.editor-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+
+  margin-top: 12px;
+}
+
+.editor-result-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 900px) {
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .editor-page {
+    padding: 12px 15px 30px;
+  }
+
+  .editor-page-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .editor-page-header h1 {
+    font-size: 24px;
+  }
+}

@@ -40,7 +40,9 @@ npm run preview
 ```text
 ai-docs-flow/
 ├── src/
-│   ├── api/                                # OpenAI 등 API 호출
+│   ├── api/
+│   │   ├── ai.js                           # generateAI(provider, prompt) — OpenAI/Gemini/Claude 교체 호출
+│   │   └── harness.js                      # withHarness — timeout·재시도·에러 분류
 │   ├── assets/                             # 이미지, 아이콘
 │   ├── components/                         # 공통 UI (Navbar, Footer, Button — 정하린)
 │   ├── data/
@@ -74,6 +76,23 @@ ai-docs-flow/
 ├── vite.config.js
 └── README.md
 ```
+
+## AI Provider 구조
+
+AI 호출은 회사(OpenAI/Gemini/Claude)에 종속되지 않도록 다음 구조로 되어 있습니다.
+
+```
+컴포넌트 → useAI(provider) 훅 → generateAI(provider, prompt) → withHarness → axios → 각 회사 API
+```
+
+- **`src/api/ai.js`** — `generateAI(provider, prompt)` 하나로 OpenAI/Gemini/Claude를 모두 호출합니다. 회사별 URL, 인증 헤더, 요청 body, 응답 파싱 방식 차이는 `PROVIDERS` 객체 안에서만 분기하고, 사용하는 쪽에서는 `provider` 문자열만 바꾸면 됩니다.
+- **`src/api/harness.js`** — `generateAI`가 실제로 API를 호출하는 부분을 감싸는 최소 Harness(v0.1)입니다.
+  - **Timeout**: 15초 안에 응답이 없으면 요청을 강제로 취소합니다.
+  - **재시도**: 실패 시 최대 1회 자동 재시도합니다. 단, 키 오류(`auth`)나 잘못된 요청(`bad_request`, 예: 존재하지 않는 모델명)처럼 다시 시도해도 소용없는 경우는 즉시 중단합니다.
+  - **Rate limit backoff**: `429`를 받으면 응답의 `Retry-After` 헤더가 있으면 그 시간만큼, 없으면 기본 1.5초만큼 대기한 뒤 재시도합니다.
+  - **이전 요청 취소**: `useAI`가 새 요청을 시작하면 같은 훅 인스턴스의 이전 요청을 자동으로 취소합니다(`kind: "cancelled"`). 연타해도 오래된 응답이 최신 응답을 덮어쓰지 않습니다.
+  - **에러 분류**: 실패 원인을 `network` / `auth` / `rate_limit` / `provider_error` / `timeout` / `bad_request` / `cancelled` 중 하나로 분류해 `err.harness`에 담아줍니다.
+- **`src/hooks/useAI.js`** — 컴포넌트에서 `const { generate, loading, error } = useAI("claude")` 형태로 쓸 수 있게 감싼 훅입니다.
 
 ## 페이지 경로
 
