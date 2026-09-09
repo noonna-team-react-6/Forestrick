@@ -58,3 +58,15 @@ export const EDIT_OPTIONS = {
     },
   ],
 };
+
+export const getEditPrompt = (label) => {
+  for (const options of Object.values(EDIT_OPTIONS)) {
+    const option = options.find((item) => item.label === label);
+
+    if (option) {
+      return option.prompt;
+    }
+  }
+
+  return "";
+};
