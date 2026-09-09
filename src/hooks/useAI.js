@@ -1,5 +1,8 @@
 import { useCallback, useState } from "react";
 import { generateAI } from "../api/ai";
+import { generateMockAI } from "../api/aiMock";
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_AI !== "false";
 
 export function useAI(provider = "openai") {
   const [loading, setLoading] = useState(false);
@@ -11,6 +14,10 @@ export function useAI(provider = "openai") {
       setError(null);
 
       try {
+        if (USE_MOCK) {
+          return await generateMockAI(prompt);
+        }
+
         return await generateAI(provider, prompt);
       } catch (err) {
         setError(err);
