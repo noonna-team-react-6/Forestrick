@@ -10,60 +10,36 @@ import {
   IconCheck,
 } from "../../components/common/Icons";
 
+import { documents } from "../../data/documents";
+import { EDIT_ACTIONS } from "../../data/constants";
+
 import "./DocumentEditorPage.css";
 
-// AI 문서 편집기 페이지 컴포넌트
 function DocumentEditorPage() {
   const { generate, loading } = useAI(
     import.meta.env.VITE_AI_PROVIDER || "gemini"
   );
 
-  // 원문 / AI 결과 / 선택된 편집 기능 / 적용 상태
-  const [content, setContent] = useState("");
+  const document = documents[0];
+  const actions = Object.keys(EDIT_ACTIONS);
 
+  const [content, setContent] = useState(document.content);
   const [result, setResult] = useState("");
-
   const [selectedAction, setSelectedAction] =
     useState("문장 다듬기");
-
   const [isApplied, setIsApplied] = useState(false);
 
-  // AI 편집 기능 목록
-  const actions = [
-    "문장 다듬기",
-    "더 정중하게",
-    "격식 있게",
-    "간결하게",
-  ];
-
-  // AI 편집 기능 실행
   const handleAction = async (action) => {
     setSelectedAction(action);
     setIsApplied(false);
 
-    // 편집 기능별 프롬프트
-    const prompts = {
-      "문장 다듬기":
-        "문장의 의미는 유지하면서 자연스럽고 읽기 좋은 문장으로 다듬어 주세요.",
-
-      "더 정중하게":
-        "문장의 의미는 유지하면서 더 정중하고 예의 바른 표현으로 바꿔 주세요.",
-
-      "격식 있게":
-        "문장의 의미는 유지하면서 비즈니스 문서에 어울리는 격식 있는 표현으로 바꿔 주세요.",
-
-      "간결하게":
-        "문장의 핵심 의미는 유지하면서 불필요한 표현을 제거하고 간결하게 바꿔 주세요.",
-    };
-
-    // AI에게 전달할 프롬프트 생성
     const prompt = `
 당신은 전문적인 AI 문서 편집기입니다.
 
 사용자가 입력한 문장의 의미와 핵심 정보는 유지해야 합니다.
 
 편집 요청:
-${prompts[action]}
+${EDIT_ACTIONS[action]}
 
 원문:
 ${content}
@@ -73,10 +49,8 @@ ${content}
 `;
 
     try {
-      // 이전 AI 결과 초기화
       setResult("");
 
-      // AI 요청 및 결과 저장
       const aiResult = await generate(prompt);
 
       setResult(aiResult);
