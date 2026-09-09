@@ -1,37 +1,56 @@
-# Forestrick AI 업무 비서 전면 수정 패치
+# Forestrick Assistant Refactor Patch
 
-## 교체/추가 파일
-- `src/pages/assistant/AssistantPage.jsx`
-- `src/pages/assistant/AssistantPage.css`
-- `src/api/aiApi.js`
-- `api/ai.js`
+코드 리뷰 반영 버전입니다.
 
-## UX 흐름
-입력 → 업무 분석하기 → **무슨 일인지 파악했어요** → 작업 선택 → **선택한 작업 실행하기** → AI 생성 진행률(%) → 생성 결과 → 수정 / 복사 / PDF/파일 / 저장
+## 반영 사항
 
-## 개발 중 Mock 모드
-`.env`
-```env
-VITE_USE_MOCK_AI=true
+- `AssistantPage.jsx` 역할 축소
+- `AssistantInput.jsx` 분리
+- `AnalysisResult.jsx` 분리
+- `ProgressModal.jsx` 분리
+- `GeneratedDocument.jsx` 분리
+- 문서 처리 로직을 `src/utils/documentUtils.js`로 분리
+- PDF 출력 시 AI 생성값을 HTML 문자열에 직접 삽입하지 않도록 수정
+- 제목은 `document.title`, 본문은 `textContent`를 사용
+- 팀 코딩 컨벤션의 네이밍, import 순서, 함수 스타일 반영
+
+## 적용 파일
+
+```text
+src/pages/assistant/AssistantPage.jsx
+src/pages/assistant/AssistantPage.css
+src/pages/assistant/components/AssistantInput.jsx
+src/pages/assistant/components/AnalysisResult.jsx
+src/pages/assistant/components/ProgressModal.jsx
+src/pages/assistant/components/GeneratedDocument.jsx
+src/utils/documentUtils.js
+src/data/mockTasks.js
+src/api/ai.js
+api/ai.js
 ```
 
-실제 OpenAI 연결 시:
-```env
-VITE_USE_MOCK_AI=false
-OPENAI_API_KEY=...
-OPENAI_MODEL=gpt-5.6-luna
+## 기존 파일 삭제
+
+기존에 아래 파일이 남아 있다면 삭제하세요.
+
+```text
+src/api/aiApi.js
 ```
 
-> `OPENAI_API_KEY`에는 `VITE_` 접두사를 붙이지 마세요.
+## 확인
 
-## 패키지
 ```bash
-npm install @tanstack/react-query openai
+npm run lint
+npm run dev
 ```
 
-## 참고
-진행률은 OpenAI의 실제 토큰 진행률이 아니라 UX용 진행 표시입니다.
-응답 대기 중 92%까지 증가하고, 응답이 도착하면 100%가 됩니다.
+## Git 커밋
 
-PDF 버튼은 별도 패키지 없이 브라우저 인쇄 창을 열며,
-인쇄 창에서 **PDF로 저장**을 선택할 수 있습니다.
+```bash
+git status
+git add .
+git commit -m "Refactor: AI 업무비서 컴포넌트 분리 및 출력 보안 개선"
+git push origin feat/assistant
+```
+
+기존 PR이 열려 있으면 같은 브랜치에 push할 경우 기존 PR에 자동 반영됩니다.
