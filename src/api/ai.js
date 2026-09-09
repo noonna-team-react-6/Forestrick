@@ -1,4 +1,5 @@
 import axios from "axios";
+import { withHarness } from "./harness";
 
 const PROVIDERS = {
   openai: {
@@ -56,12 +57,17 @@ export async function generateAI(provider, prompt) {
 
   const url = typeof config.url === "function" ? config.url(config.apiKey) : config.url;
 
-  const { data } = await axios.post(url, config.body(prompt), {
-    headers: {
-      "Content-Type": "application/json",
-      ...config.headers(config.apiKey),
-    },
-  });
+  const data = await withHarness(provider, (signal) =>
+    axios
+      .post(url, config.body(prompt), {
+        headers: {
+          "Content-Type": "application/json",
+          ...config.headers(config.apiKey),
+        },
+        signal,
+      })
+      .then((res) => res.data)
+  );
 
   return config.parse(data);
 }
