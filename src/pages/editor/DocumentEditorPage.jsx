@@ -26,38 +26,38 @@ function DocumentEditorPage() {
   const [content, setContent] = useState(document.content);
   const [result, setResult] = useState("");
   const [selectedAction, setSelectedAction] =
-    useState("문장 다듬기");
+  useState("문장 다듬기");
   const [isApplied, setIsApplied] = useState(false);
 
   const handleAction = async (action) => {
-    setSelectedAction(action);
-    setIsApplied(false);
+  setSelectedAction(action);
+  setIsApplied(false);
 
-    const prompt = `
-당신은 전문적인 AI 문서 편집기입니다.
+  const prompt = `
+  당신은 전문적인 AI 문서 편집기입니다.
 
-사용자가 입력한 문장의 의미와 핵심 정보는 유지해야 합니다.
+  사용자가 입력한 문장의 의미와 핵심 정보는 유지해야 합니다.
 
-편집 요청:
-${EDIT_ACTIONS[action]}
+  편집 요청:
+  ${EDIT_ACTIONS[action]}
 
-원문:
-${content}
+  원문:
+  ${content}
 
-수정된 문장만 출력하세요.
-설명이나 따옴표는 붙이지 마세요.
-`;
+  수정된 문장만 출력하세요.
+  설명이나 따옴표는 붙이지 마세요.
+  `;
 
-    try {
-      setResult("");
+  try {
+    setResult("");
 
-      const aiResult = await generate(prompt);
+    const aiResult = await generate(prompt);
 
-      setResult(aiResult);
-    } catch (err) {
-      console.error("AI 요청 실패:", err);
-    }
-  };
+    setResult(aiResult);
+  } catch (err) {
+    console.error("AI 요청 실패:", err);
+  }
+};
 
   // AI 결과를 원문에 적용
   const handleApply = () => {
