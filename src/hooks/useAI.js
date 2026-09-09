@@ -1,20 +1,17 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
+
 import { generateAI } from "../api/ai";
 import { generateMockAI } from "../api/aiMock";
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_AI !== "false";
+const USE_MOCK =
+  import.meta.env.VITE_USE_MOCK_AI !== "false";
 
 export function useAI(provider = "openai") {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const controllerRef = useRef(null);
 
   const generate = useCallback(
     async (prompt) => {
-      controllerRef.current?.abort();
-      const controller = new AbortController();
-      controllerRef.current = controller;
-
       setLoading(true);
       setError(null);
 
@@ -23,20 +20,20 @@ export function useAI(provider = "openai") {
           return await generateMockAI(prompt);
         }
 
-        return await generateAI(provider, prompt, { signal: controller.signal });
+        return await generateAI(provider, prompt);
       } catch (err) {
-        if (err.harness?.kind !== "cancelled") {
-          setError(err);
-        }
+        setError(err);
         throw err;
       } finally {
-        if (controllerRef.current === controller) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     },
     [provider]
   );
 
-  return { generate, loading, error };
+  return {
+    generate,
+    loading,
+    error,
+  };
 }
