@@ -89,7 +89,9 @@ AI 호출은 회사(OpenAI/Gemini/Claude)에 종속되지 않도록 다음 구�
 - **`src/api/harness.js`** — `generateAI`가 실제로 API를 호출하는 부분을 감싸는 최소 Harness(v0.1)입니다.
   - **Timeout**: 15초 안에 응답이 없으면 요청을 강제로 취소합니다.
   - **재시도**: 실패 시 최대 1회 자동 재시도합니다. 단, 키 오류(`auth`)나 잘못된 요청(`bad_request`, 예: 존재하지 않는 모델명)처럼 다시 시도해도 소용없는 경우는 즉시 중단합니다.
-  - **에러 분류**: 실패 원인을 `network` / `auth` / `rate_limit` / `provider_error` / `timeout` / `bad_request` 중 하나로 분류해 `err.harness`에 담아줍니다.
+  - **Rate limit backoff**: `429`를 받으면 응답의 `Retry-After` 헤더가 있으면 그 시간만큼, 없으면 기본 1.5초만큼 대기한 뒤 재시도합니다.
+  - **이전 요청 취소**: `useAI`가 새 요청을 시작하면 같은 훅 인스턴스의 이전 요청을 자동으로 취소합니다(`kind: "cancelled"`). 연타해도 오래된 응답이 최신 응답을 덮어쓰지 않습니다.
+  - **에러 분류**: 실패 원인을 `network` / `auth` / `rate_limit` / `provider_error` / `timeout` / `bad_request` / `cancelled` 중 하나로 분류해 `err.harness`에 담아줍니다.
 - **`src/hooks/useAI.js`** — 컴포넌트에서 `const { generate, loading, error } = useAI("claude")` 형태로 쓸 수 있게 감싼 훅입니다.
 
 ## 페이지 경로
