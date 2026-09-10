@@ -12,7 +12,7 @@ import {
 export default function OfficialResultPanel({
   document,
   onCopy,
-  onPrintPdf,
+  onDownloadPdf,
   onDownloadText,
   onSave,
 }) {
@@ -47,8 +47,8 @@ export default function OfficialResultPanel({
     onCopy(documentText);
   };
 
-  const handlePrintPdf = () => {
-    onPrintPdf(documentText);
+  const handleDownloadPdf = () => {
+    onDownloadPdf(documentText);
   };
 
   const handleDownloadText = () => {
@@ -125,7 +125,7 @@ export default function OfficialResultPanel({
             복사
           </button>
 
-          <button type="button" onClick={handlePrintPdf}>
+          <button type="button" onClick={handleDownloadPdf}>
             <IconPrint size={14} />
             PDF
           </button>

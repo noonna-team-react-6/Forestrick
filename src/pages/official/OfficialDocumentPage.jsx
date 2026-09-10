@@ -6,9 +6,9 @@ import { createOfficialDocumentPrompt } from "../../utils/officialPrompts";
 import { parseAIJson } from "../../utils/aiResponseUtils";
 import {
   downloadDocumentAsText,
-  printDocumentAsPdf,
   saveDocument,
 } from "../../utils/documentUtils";
+import { downloadOfficialDocumentAsPdf } from "../../utils/officialDocumentPdf";
 import OfficialInput from "../../components/official/OfficialInput";
 import OfficialResultPanel from "../../components/official/OfficialResultPanel";
 import ProgressModal from "../../components/assistant/ProgressModal";
@@ -134,8 +134,8 @@ export default function OfficialDocumentPage() {
     setToastMessage("문서를 복사했습니다.");
   };
 
-  const handlePrintPdf = (documentText) => {
-    printDocumentAsPdf(generatedDocument?.title, documentText);
+  const handleDownloadPdf = (documentText) => {
+    downloadOfficialDocumentAsPdf(generatedDocument?.title, documentText);
   };
 
   const handleDownloadText = (documentText) => {
@@ -186,7 +186,7 @@ export default function OfficialDocumentPage() {
           key={resultKey}
           document={generatedDocument}
           onCopy={handleCopy}
-          onPrintPdf={handlePrintPdf}
+          onDownloadPdf={handleDownloadPdf}
           onDownloadText={handleDownloadText}
           onSave={handleSave}
         />
