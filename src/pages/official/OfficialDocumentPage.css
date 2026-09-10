@@ -1,0 +1,145 @@
+.official-page {
+  --assistant-bg: #0f1115;
+  --assistant-surface: #1a1d24;
+  --assistant-text: #e7e9ee;
+  --assistant-muted: #9aa3b2;
+  --assistant-border: #2e333d;
+  --assistant-blue-hover: #4a8bff;
+  --assistant-blue-soft: rgba(47, 118, 246, 0.16);
+}
+
+.official-workspace {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 640px;
+}
+
+.official-page .ai-ready-badge {
+  border-color: rgba(47, 118, 246, 0.35);
+  background: var(--assistant-blue-soft);
+  color: #8fb4ff;
+}
+
+.official-page .assistant-textarea,
+.official-page .official-field input {
+  background: #12141a;
+  border-color: var(--assistant-border);
+}
+
+.official-page .assistant-textarea:focus,
+.official-page .official-field input:focus {
+  background: #171a21;
+  border-color: var(--assistant-blue-hover);
+}
+
+.official-page .example-chips button {
+  border-color: var(--assistant-border);
+  background: #1a1d24;
+  color: #b7bfcc;
+}
+
+.official-page .inline-error {
+  background: rgba(239, 68, 68, 0.14);
+  color: #ff9b9b;
+}
+
+.official-page .progress-modal,
+.official-page .result-modal {
+  border-color: var(--assistant-border);
+  background: var(--assistant-surface);
+}
+
+.official-page .progress-track {
+  background: #22262f;
+}
+
+.official-page .icon-close,
+.official-page .result-tabs button,
+.official-page .action-group > button,
+.official-page .download-menu > button,
+.official-page .download-options {
+  border-color: var(--assistant-border);
+  background: #22262f;
+  color: #c2c9d6;
+}
+
+.official-page .result-tabs .active {
+  border-color: rgba(47, 118, 246, 0.5);
+  background: var(--assistant-blue-soft);
+  color: #8fb4ff;
+}
+
+.official-page .document-paper {
+  border-color: var(--assistant-border);
+  background: #171a21;
+  color: #dfe3ea;
+}
+
+.official-page .document-meta-top {
+  color: #6b7383;
+}
+
+.official-page .mail-meta {
+  background: #1e222a;
+}
+
+.official-page .mail-meta span {
+  color: #838ba0;
+}
+
+.official-page .document-body {
+  color: #b6bdca;
+}
+
+.official-page .signature {
+  color: #dfe3ea;
+}
+
+.official-page .document-editor {
+  color: #dfe3ea;
+  background: transparent;
+}
+
+.official-page .download-options button {
+  color: #c2c9d6;
+}
+
+.official-page .download-options button:hover {
+  background: #2a2f39;
+}
+
+.official-field {
+  display: block;
+  margin-top: 16px;
+}
+
+.official-field span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--assistant-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.official-field input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  outline: none;
+  background: #f5f8fc;
+  color: var(--assistant-text);
+  font: inherit;
+}
+
+.official-field input:focus {
+  border-color: #8fb4fb;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(47, 118, 246, 0.09);
+}
+
+.official-field .assistant-textarea {
+  margin-top: 0;
+  min-height: 110px;
+}

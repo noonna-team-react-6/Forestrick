@@ -4,6 +4,27 @@ export const ASSISTANT_EXAMPLES = [
   "다음 주 수요일 오후 2시에 개발팀 회의 일정을 변경하고 참석자들에게 알려줘.",
 ];
 
+export const OFFICIAL_DOCUMENT_EXAMPLES = [
+  {
+    to: "전 직원",
+    subject: "신규 협업 시스템 도입 안내",
+    content:
+      "다음 달부터 새로운 협업 시스템을 도입합니다. 사용 방법 교육은 이번 주 금요일에 진행됩니다.",
+  },
+  {
+    to: "인사팀",
+    subject: "하반기 정기 휴가 사용 안내",
+    content:
+      "하반기 정기 휴가는 12월 말까지 사용해야 하며, 사용 계획은 다음 주까지 제출 바랍니다.",
+  },
+  {
+    to: "개발팀",
+    subject: "사내 보안 점검 협조 요청",
+    content:
+      "이번 주 목요일 오후 2시부터 사내 보안 점검이 진행되니 관련 시스템 접근에 협조 바랍니다.",
+  },
+];
+
 export const PROGRESS_MESSAGES = [
   {
     at: 0,
