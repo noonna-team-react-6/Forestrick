@@ -8,9 +8,24 @@
   --assistant-blue-soft: rgba(47, 118, 246, 0.16);
 }
 
-.official-workspace {
-  grid-template-columns: minmax(0, 1fr);
-  max-width: 640px;
+@keyframes official-result-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.official-result-panel {
+  animation: official-result-slide-in 0.35s ease;
+}
+
+.official-document-paper {
+  min-height: 380px;
 }
 
 .official-page .ai-ready-badge {

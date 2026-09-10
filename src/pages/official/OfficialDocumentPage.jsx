@@ -10,7 +10,7 @@ import {
   saveDocument,
 } from "../../utils/documentUtils";
 import OfficialInput from "../../components/official/OfficialInput";
-import GeneratedDocument from "../../components/assistant/GeneratedDocument";
+import OfficialResultPanel from "../../components/official/OfficialResultPanel";
 import ProgressModal from "../../components/assistant/ProgressModal";
 
 import "../assistant/AssistantPage.css";
@@ -29,7 +29,7 @@ export default function OfficialDocumentPage() {
   const [content, setContent] = useState("");
   const [progress, setProgress] = useState(0);
   const [generatedDocument, setGeneratedDocument] = useState(null);
-  const [isResultOpen, setIsResultOpen] = useState(false);
+  const [resultKey, setResultKey] = useState(0);
   const [toastMessage, setToastMessage] = useState("");
 
   const progressTimerRef = useRef(null);
@@ -118,7 +118,7 @@ export default function OfficialDocumentPage() {
 
       window.setTimeout(() => {
         setGeneratedDocument(parsedResponse);
-        setIsResultOpen(true);
+        setResultKey((previousKey) => previousKey + 1);
         setProgress(0);
       }, RESULT_OPEN_DELAY);
     } catch (generateError) {
@@ -152,10 +152,6 @@ export default function OfficialDocumentPage() {
     setToastMessage("문서 보관함에 저장했습니다.");
   };
 
-  const handleResultClose = () => {
-    setIsResultOpen(false);
-  };
-
   return (
     <main className="assistant-page official-page">
       <div className="assistant-heading">
@@ -185,21 +181,19 @@ export default function OfficialDocumentPage() {
           onFieldChange={handleFieldChange}
           onGenerate={handleGenerate}
         />
-      </section>
 
-      {isGenerating && (
-        <ProgressModal progress={progress} message={progressMessage} />
-      )}
-
-      {isResultOpen && generatedDocument && (
-        <GeneratedDocument
+        <OfficialResultPanel
+          key={resultKey}
           document={generatedDocument}
-          onClose={handleResultClose}
           onCopy={handleCopy}
           onPrintPdf={handlePrintPdf}
           onDownloadText={handleDownloadText}
           onSave={handleSave}
         />
+      </section>
+
+      {isGenerating && (
+        <ProgressModal progress={progress} message={progressMessage} />
       )}
 
       {toastMessage && (
