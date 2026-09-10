@@ -13,13 +13,15 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<AppLayout />}>
-        {/* 하린 */}
+        {/* 나중에 */}
         <Route index element={<HomePage />} />
-        {/* 상진 */}
+        {/* 동희 */}
         <Route path="assistant" element={<AssistantPage />} />
+
+        {/* 지은 */}
         <Route path="official" element={<OfficialDocumentPage />} />
 
-        {/* 혜연 */}
+        {/* 상진 */}
         <Route path="analysis" element={<AnalysisPage />} />
 
         {/* 하린 */}
