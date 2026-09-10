@@ -13,8 +13,7 @@ const createAnalysisMock = () => {
     time: "오전 10시",
     location: "3층 회의실",
     target: "관련 팀",
-    summary:
-      "회의 일정과 참석자 안내, 사전 준비가 필요한 업무로 파악했습니다.",
+    summary: "회의 일정과 참석자 안내, 사전 준비가 필요한 업무로 파악했습니다.",
     actions: [
       "회의 참석자 안내 문서 작성",
       "회의 일정 정리",

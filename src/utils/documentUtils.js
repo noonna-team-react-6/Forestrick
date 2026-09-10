@@ -131,7 +131,7 @@ export const saveDocument = ({
   type,
   content,
 }) => {
-  let documents = [];
+  let documents;
 
   try {
     documents = JSON.parse(

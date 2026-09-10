@@ -1,0 +1,216 @@
+.preview-paper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  padding: 56px 48px 48px;
+  color: #1e293b;
+  background: #f6f0e4;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 35%);
+}
+
+.preview-paper--obituary {
+  background: #f6f0e4;
+  text-align: center;
+}
+
+.preview-paper--wedding {
+  background: #fffaf4;
+  border: 12px solid #ead9c1;
+  box-shadow:
+    0 12px 32px rgb(15 23 42 / 8%),
+    inset 0 0 0 1px #d4b896;
+  text-align: center;
+}
+
+.preview-paper--notice {
+  background: #f8f5ef;
+  text-align: left;
+}
+
+.preview-header {
+  margin-bottom: 28px;
+}
+
+.preview-company {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.preview-title {
+  margin: 0;
+  color: #1e293b;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+}
+
+.preview-paper--wedding .preview-title {
+  letter-spacing: 0.4em;
+}
+
+.preview-paper--notice .preview-title {
+  font-size: 22px;
+  letter-spacing: 0;
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #d6d3cd;
+}
+
+.preview-body {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  margin-bottom: 28px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  font-size: 15px;
+}
+
+.preview-body p {
+  margin: 0;
+}
+
+.preview-body__empty {
+  color: #94a3b8;
+}
+
+.preview-editor {
+  width: 100%;
+  min-height: 280px;
+  margin-bottom: 24px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.preview-fields {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+
+.preview-fields--highlight {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #eff6ff;
+}
+
+.preview-fields dt {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.preview-extra {
+  margin: 0 0 28px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.preview-fields__row {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.preview-paper--obituary .preview-fields,
+.preview-paper--wedding .preview-fields {
+  justify-items: center;
+}
+
+.preview-paper--obituary .preview-fields__row,
+.preview-paper--wedding .preview-fields__row {
+  grid-template-columns: auto auto;
+}
+
+.preview-fields dd {
+  margin: 0;
+}
+
+.preview-sign {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 48px;
+  text-align: right;
+}
+
+.preview-paper--obituary .preview-sign,
+.preview-paper--wedding .preview-sign {
+  align-items: center;
+  text-align: center;
+}
+
+.preview-sign__dept,
+.preview-sign__name {
+  margin: 0;
+}
+
+.preview-sign__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-seal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-seal--image {
+  width: 48px;
+  height: 48px;
+}
+
+.preview-seal__img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.preview-sign__stamp {
+  position: relative;
+  z-index: 0;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: 1;
+}
+
+.preview-stamp-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 160px;
+  height: 160px;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@media (max-width: 1100px) {
+  .preview-paper {
+    padding: 36px 24px;
+  }
+}
