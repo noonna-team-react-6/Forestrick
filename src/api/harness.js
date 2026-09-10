@@ -1,11 +1,12 @@
-const DEFAULT_TIMEOUT_MS = 15000;
+const DEFAULT_TIMEOUT_MS = 50000;
 const MAX_RETRIES = 1;
 const RATE_LIMIT_BACKOFF_MS = 1500;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function classifyError(err) {
-  if (err.code === "ECONNABORTED" || err.name === "CanceledError") return "timeout";
+  if (err.code === "ECONNABORTED" || err.name === "CanceledError")
+    return "timeout";
   if (!err.response) return "network";
   if (err.response.status === 401) return "auth";
   if (err.response.status === 429) return "rate_limit";
@@ -19,14 +20,23 @@ function getRetryAfterMs(err) {
   return Number.isFinite(seconds) ? seconds * 1000 : null;
 }
 
-export async function withHarness(provider, requestFn, { signal: externalSignal } = {}) {
+export async function withHarness(
+  provider,
+  requestFn,
+  { signal: externalSignal } = {},
+) {
   const startedAt = performance.now();
   let lastError;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     if (externalSignal?.aborted) {
       throw Object.assign(new Error("cancelled"), {
-        harness: { provider, kind: "cancelled", attempt, latencyMs: performance.now() - startedAt },
+        harness: {
+          provider,
+          kind: "cancelled",
+          attempt,
+          latencyMs: performance.now() - startedAt,
+        },
       });
     }
 
@@ -46,13 +56,28 @@ export async function withHarness(provider, requestFn, { signal: externalSignal 
 
       const kind = externalSignal?.aborted ? "cancelled" : classifyError(err);
       lastError = Object.assign(new Error(err.message), {
-        harness: { provider, kind, attempt, latencyMs: performance.now() - startedAt },
+        harness: {
+          provider,
+          kind,
+          attempt,
+          latencyMs: performance.now() - startedAt,
+        },
       });
 
-      if (kind === "auth" || kind === "bad_request" || kind === "cancelled") break;
+      if (kind === "auth" || kind === "bad_request" || kind === "cancelled")
+        break;
 
-      if (kind === "rate_limit" && attempt < MAX_RETRIES) {
-        await sleep(getRetryAfterMs(err) ?? RATE_LIMIT_BACKOFF_MS);
+      if (
+        (kind === "rate_limit" ||
+          kind === "provider_error" ||
+          kind === "timeout") &&
+        attempt < MAX_RETRIES
+      ) {
+        await sleep(
+          kind === "rate_limit"
+            ? (getRetryAfterMs(err) ?? RATE_LIMIT_BACKOFF_MS)
+            : 1000,
+        );
       }
     }
   }
