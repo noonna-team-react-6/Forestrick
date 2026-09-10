@@ -65,7 +65,7 @@ export default function Input({
             minHeight: 40,
             fontSize: 14,
             "& fieldset": {
-              borderColor: "transparent",
+              borderColor: "rgba(255, 255, 255, 0.16)",
             },
             "&:hover fieldset": {
               borderColor: "rgba(255, 255, 255, 0.12)",

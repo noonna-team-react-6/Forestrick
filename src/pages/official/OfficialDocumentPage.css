@@ -29,16 +29,16 @@
   gap: 16px;
 }
 
-.official-crumb {
+.official-header .official-crumb {
   margin: 0 0 8px;
-  color: var(--color-primary);
+  color: #3b82f6;
   font-size: 13px;
   font-weight: 700;
 }
 
 .official-crumb span {
   margin: 0 8px;
-  color: var(--color-text-muted);
+  color: inherit;
   font-weight: 500;
 }
 
@@ -61,7 +61,11 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-success) 16%, var(--color-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-success) 16%,
+    var(--color-surface)
+  );
   color: var(--color-success);
   font-size: 13px;
   font-weight: 600;
@@ -122,4 +126,58 @@
   .official-header {
     flex-direction: column;
   }
+}
+
+.official-loading-modal {
+  max-width: 400px;
+  padding: 32px 28px 28px;
+}
+
+.official-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.official-loading__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  background: rgba(59, 123, 255, 0.18);
+  color: #5ba3ff;
+}
+
+.official-loading h3 {
+  margin: 0 0 20px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.official-loading > .MuiBox-root {
+  width: 100%;
+}
+
+.official-loading__percent {
+  margin: 10px 0 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.official-loading__desc {
+  margin: 0 0 8px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.official-loading__caption {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 12px;
 }

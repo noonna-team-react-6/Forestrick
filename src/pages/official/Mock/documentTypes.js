@@ -90,6 +90,7 @@ export const DOCUMENT_TYPES = [
     fields: [
       { key: "originalDate", label: "기존 일정" },
       { key: "newDate", label: "변경 일정" },
+      { key: "venue", label: "장소" },
       { key: "reason", label: "변경 사유" },
       { key: "extra", label: "추가 내용", multiline: true },
     ],

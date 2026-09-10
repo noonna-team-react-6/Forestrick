@@ -1,11 +1,11 @@
-import Button from "../../../components/common/Button";
+import Button from "../common/Button";
 import {
   IconCopy,
   IconDownload,
   IconFile,
   IconPencil,
   IconPrint,
-} from "../../../components/common/Icons";
+} from "../common/Icons";
 import DocumentPreview from "./DocumentPreview";
 import { ToneButtons } from "./DocumentTone";
 import "./OfficialPreviewPane.css";
@@ -21,8 +21,13 @@ export default function OfficialPreviewPane({
   fields,
   body,
   companyStyle,
+  companyName,
+  showDepartment,
   showSignature,
+  showStamp,
   stampImage,
+  stampAtCenter,
+  stampAtName,
   onBodyChange,
   tone,
   onRewrite,
@@ -67,8 +72,13 @@ export default function OfficialPreviewPane({
           fields={fields}
           body={body}
           companyStyle={companyStyle}
+          companyName={companyName}
+          showDepartment={showDepartment}
           showSignature={showSignature}
+          showStamp={showStamp}
           stampImage={stampImage}
+          stampAtCenter={stampAtCenter}
+          stampAtName={stampAtName}
           editing={editing}
           onBodyChange={onBodyChange}
         />

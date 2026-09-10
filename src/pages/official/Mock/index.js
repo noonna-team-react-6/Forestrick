@@ -20,7 +20,9 @@ export {
 };
 
 export function findType(documentType) {
-  return DOCUMENT_TYPES.find((item) => item.id === documentType) ?? DOCUMENT_TYPES[0];
+  return (
+    DOCUMENT_TYPES.find((item) => item.id === documentType) ?? DOCUMENT_TYPES[0]
+  );
 }
 
 export function emptyFields() {

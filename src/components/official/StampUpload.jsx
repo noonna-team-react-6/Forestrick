@@ -1,6 +1,6 @@
 import { useRef } from "react";
-import Button from "../../../components/common/Button";
-import { IconTrash, IconUpload } from "../../../components/common/Icons";
+import Button from "../common/Button";
+import { IconTrash, IconUpload } from "../common/Icons";
 import "./StampUpload.css";
 
 const ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
@@ -46,7 +46,12 @@ export default function StampUpload({ value, onChange, disabled = false }) {
         <div className="stamp-upload__preview">
           <img src={value} alt="선택한 도장" />
           <div className="stamp-upload__actions">
-            <Button variant="outline" size="sm" disabled={disabled} onClick={openPicker}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={disabled}
+              onClick={openPicker}
+            >
               <IconUpload size={16} />
               도장 바꾸기
             </Button>

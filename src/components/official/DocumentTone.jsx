@@ -1,5 +1,5 @@
-import Button from "../../../components/common/Button";
-import { TONES } from "../Mock";
+import Button from "../common/Button";
+import { TONES } from "../../pages/official/Mock";
 import "./DocumentTone.css";
 
 export { TONES };
