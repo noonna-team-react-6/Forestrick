@@ -38,7 +38,9 @@ const PROVIDERS = {
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     }),
-    parse: (data) => data.content[0].text,
+    // claude-sonnet-5는 복잡한 요청에서 thinking 블록을 text 블록보다 먼저 반환할 수 있어
+    // 인덱스로 고정하지 않고 type이 "text"인 블록을 찾아야 함
+    parse: (data) => data.content.find((block) => block.type === "text")?.text,
   },
 };
 
