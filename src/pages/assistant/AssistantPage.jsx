@@ -5,17 +5,19 @@ import { PROGRESS_MESSAGES } from "../../data/mockTasks";
 import {
   createAnalysisPrompt,
   createDocumentPrompt,
+  createRewritePrompt,
 } from "../../utils/assistantPrompts";
 import { parseAIJson } from "../../utils/aiResponseUtils";
 import {
   downloadDocumentAsText,
-  printDocumentAsPdf,
+  openPdfSaveDialog,
   saveDocument,
 } from "../../utils/documentUtils";
-import AssistantInput from "../../components/assistant/AssistantInput";
-import AnalysisResult from "../../components/assistant/AnalysisResult";
-import GeneratedDocument from "../../components/assistant/GeneratedDocument";
-import ProgressModal from "../../components/assistant/ProgressModal";
+import AIProviderSelector from "./components/AIProviderSelector";
+import AnalysisResult from "./components/AnalysisResult";
+import AssistantInput from "./components/AssistantInput";
+import GeneratedDocument from "./components/GeneratedDocument";
+import ProgressModal from "./components/ProgressModal";
 
 import "./AssistantPage.css";
 
@@ -51,6 +53,7 @@ const normalizeAnalysis = (data) => {
 };
 
 export default function AssistantPage() {
+  const [provider, setProvider] = useState(DEFAULT_AI_PROVIDER);
   const [input, setInput] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const [selectedActions, setSelectedActions] = useState([]);
@@ -65,13 +68,19 @@ export default function AssistantPage() {
     generate: generateAnalysis,
     loading: isAnalyzing,
     error: analysisError,
-  } = useAI(DEFAULT_AI_PROVIDER);
+  } = useAI(provider);
 
   const {
     generate: generateDocument,
     loading: isGeneratingDocument,
     error: generationError,
-  } = useAI(DEFAULT_AI_PROVIDER);
+  } = useAI(provider);
+
+  const {
+    generate: rewriteDocument,
+    loading: isRewriting,
+    error: rewriteError,
+  } = useAI(provider);
 
   useEffect(() => {
     return () => {
@@ -111,6 +120,12 @@ export default function AssistantPage() {
     isGeneratingDocument || progress > 0;
   const hasSelectedActions =
     selectedActions.length > 0;
+  const isProviderLocked =
+    isAnalyzing || isGenerating || isRewriting;
+
+  const handleProviderChange = (nextProvider) => {
+    setProvider(nextProvider);
+  };
 
   const handleInputChange = (value) => {
     setInput(value);
@@ -231,6 +246,35 @@ export default function AssistantPage() {
     }
   };
 
+  const handleRewrite = async (
+    rewriteStyle,
+    documentText
+  ) => {
+    try {
+      const response = await rewriteDocument(
+        createRewritePrompt({
+          rewriteStyle,
+          documentText,
+          originalRequest: input,
+          analysis,
+        })
+      );
+
+      const parsedResponse =
+        parseAIJson(response);
+
+      setGeneratedDocument(parsedResponse);
+      setToastMessage(
+        "요청한 스타일로 문서를 다시 다듬었습니다."
+      );
+    } catch (error) {
+      console.error(
+        "AI 문서 재작성 오류:",
+        error
+      );
+    }
+  };
+
   const handleCopy = async (documentText) => {
     await navigator.clipboard.writeText(
       documentText
@@ -241,8 +285,8 @@ export default function AssistantPage() {
     );
   };
 
-  const handlePrintPdf = (documentText) => {
-    printDocumentAsPdf(
+  const handleSavePdf = (documentText) => {
+    openPdfSaveDialog(
       generatedDocument?.title,
       documentText
     );
@@ -290,10 +334,20 @@ export default function AssistantPage() {
           </p>
         </div>
 
-        <span className="ai-ready-badge">
-          <i />
-          AI 준비 완료
-        </span>
+        <div className="assistant-status-area">
+          <AIProviderSelector
+            provider={provider}
+            isDisabled={isProviderLocked}
+            onProviderChange={
+              handleProviderChange
+            }
+          />
+
+          <span className="ai-ready-badge">
+            <i />
+            AI 준비 완료
+          </span>
+        </div>
       </div>
 
       <section className="assistant-workspace">
@@ -325,9 +379,12 @@ export default function AssistantPage() {
       {isResultOpen && generatedDocument && (
         <GeneratedDocument
           document={generatedDocument}
+          isRewriting={isRewriting}
+          hasRewriteError={Boolean(rewriteError)}
           onClose={handleResultClose}
+          onRewrite={handleRewrite}
           onCopy={handleCopy}
-          onPrintPdf={handlePrintPdf}
+          onSavePdf={handleSavePdf}
           onDownloadText={handleDownloadText}
           onSave={handleSave}
         />

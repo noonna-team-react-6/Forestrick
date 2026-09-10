@@ -41,7 +41,7 @@ const sanitizeFileName = (fileName) => {
   );
 };
 
-export const printDocumentAsPdf = (
+export const openPdfSaveDialog = (
   title,
   documentText
 ) => {
