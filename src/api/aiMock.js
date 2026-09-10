@@ -39,15 +39,34 @@ const createDocumentMock = () => {
   });
 };
 
-const createOfficialDocumentMock = () => {
+const extractOfficialFields = (prompt) => {
+  const match = prompt.match(
+    /\[수신\]\n([\s\S]*?)\n\n\[제목\/목적\]\n([\s\S]*?)\n\n\[핵심 내용\]\n([\s\S]*?)\n\n다음 조건/
+  );
+
+  if (!match) {
+    return { to: "전 직원", subject: "안내", content: "" };
+  }
+
+  const [, to, subject, content] = match;
+
+  return {
+    to: to.trim(),
+    subject: subject.trim(),
+    content: content.trim(),
+  };
+};
+
+const createOfficialDocumentMock = (prompt) => {
+  const { to, subject, content } = extractOfficialFields(prompt);
+
   return JSON.stringify({
-    title: "신규 협업 시스템 도입 안내",
-    to: "전 직원",
-    subject: "신규 협업 시스템 도입 안내",
+    title: subject,
+    to,
+    subject,
     greeting: "안녕하세요.",
     paragraphs: [
-      "다음 달부터 새로운 협업 시스템을 도입할 예정입니다.",
-      "사용 방법 교육은 이번 주 금요일에 진행되니 참석해 주시기 바랍니다.",
+      content,
       "문의 사항이 있으신 경우 담당 부서로 연락해 주시기 바랍니다.",
     ],
     closing: "감사합니다.",
@@ -69,7 +88,7 @@ export const generateMockAI = async (prompt) => {
 
   if (prompt.includes("[TASK:GENERATE_OFFICIAL_DOCUMENT]")) {
     await wait(1400);
-    return createOfficialDocumentMock();
+    return createOfficialDocumentMock(prompt);
   }
 
   return JSON.stringify({
