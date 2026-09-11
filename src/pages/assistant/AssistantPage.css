@@ -68,41 +68,6 @@
   gap: 8px;
 }
 
-.provider-selector {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 34px;
-  padding: 0 8px 0 11px;
-  border: 1px solid #29364a;
-  border-radius: 999px;
-  background: #111925;
-  color: #8291a7;
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.provider-selector select {
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: #d8e2ef;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.provider-selector select:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.provider-selector option {
-  color: #e6edf7;
-  background: #151c27;
-}
-
 .ai-ready-badge,
 .analysis-complete {
   display: inline-flex;

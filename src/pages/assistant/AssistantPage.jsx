@@ -13,7 +13,6 @@ import {
   openPdfSaveDialog,
   saveDocument,
 } from "../../utils/documentUtils";
-import AIProviderSelector from "./components/AIProviderSelector";
 import AnalysisResult from "./components/AnalysisResult";
 import AssistantInput from "./components/AssistantInput";
 import GeneratedDocument from "./components/GeneratedDocument";
@@ -21,7 +20,7 @@ import ProgressModal from "./components/ProgressModal";
 
 import "./AssistantPage.css";
 
-const DEFAULT_AI_PROVIDER = "openai";
+const AI_PROVIDER = import.meta.env.VITE_AI_PROVIDER || "openai";
 const MAX_PROGRESS = 92;
 const COMPLETE_PROGRESS = 100;
 const PROGRESS_INTERVAL = 280;
@@ -53,7 +52,6 @@ const normalizeAnalysis = (data) => {
 };
 
 export default function AssistantPage() {
-  const [provider, setProvider] = useState(DEFAULT_AI_PROVIDER);
   const [input, setInput] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const [selectedActions, setSelectedActions] = useState([]);
@@ -68,19 +66,19 @@ export default function AssistantPage() {
     generate: generateAnalysis,
     loading: isAnalyzing,
     error: analysisError,
-  } = useAI(provider);
+  } = useAI(AI_PROVIDER);
 
   const {
     generate: generateDocument,
     loading: isGeneratingDocument,
     error: generationError,
-  } = useAI(provider);
+  } = useAI(AI_PROVIDER);
 
   const {
     generate: rewriteDocument,
     loading: isRewriting,
     error: rewriteError,
-  } = useAI(provider);
+  } = useAI(AI_PROVIDER);
 
   useEffect(() => {
     return () => {
@@ -120,12 +118,6 @@ export default function AssistantPage() {
     isGeneratingDocument || progress > 0;
   const hasSelectedActions =
     selectedActions.length > 0;
-  const isProviderLocked =
-    isAnalyzing || isGenerating || isRewriting;
-
-  const handleProviderChange = (nextProvider) => {
-    setProvider(nextProvider);
-  };
 
   const handleInputChange = (value) => {
     setInput(value);
@@ -335,14 +327,6 @@ export default function AssistantPage() {
         </div>
 
         <div className="assistant-status-area">
-          <AIProviderSelector
-            provider={provider}
-            isDisabled={isProviderLocked}
-            onProviderChange={
-              handleProviderChange
-            }
-          />
-
           <span className="ai-ready-badge">
             <i />
             AI 준비 완료
