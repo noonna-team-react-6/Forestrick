@@ -39,35 +39,50 @@ npm run preview
 
 ```text
 ai-docs-flow/
+├── public/                                 # 정적 파일 (로고, 파비콘, 폰트)
 ├── src/
 │   ├── api/
 │   │   ├── ai.js                           # generateAI(provider, prompt) — OpenAI/Gemini/Claude 교체 호출
+│   │   ├── aiMock.js                       # 로컬 목 AI 응답
 │   │   └── harness.js                      # withHarness — timeout·재시도·에러 분류
-│   ├── assets/                             # 이미지, 아이콘
-│   ├── components/                         # 공통 UI (Navbar, Footer, Button — 정하린)
+│   ├── components/
+│   │   ├── layout/                         # AppLayout, NavBar, SideBar, Breadcrumb, LoginModal
+│   │   ├── common/                         # Button, Input, Modal, Toast 등 공통 UI
+│   │   ├── official/                       # 공문 입력·미리보기 컴포넌트
+│   │   ├── assistant/                      # 업무 분석·문서 생성 UI
+│   │   └── archive/                        # 보관함 카드 UI
 │   ├── data/
-│   │   └── constants.js                    # 더미 데이터 (문서 종류, 예시 문구)
-│   ├── hooks/                              # 커스텀 훅
+│   │   ├── constants.js                    # 더미 데이터 (문서 종류, 예시 문구)
+│   │   ├── documents.js                    # 문서 목록 더미
+│   │   └── mockTasks.js                    # 업무 분석 더미
+│   ├── hooks/
+│   │   ├── useAI.js                        # AI 호출 훅
+│   │   └── useDocuments.js                 # 문서 상태
 │   ├── pages/
 │   │   ├── home/
-│   │   │   └── HomePage.jsx                # `/` 서비스 소개 · 기능 이동 (정하린)
+│   │   │   └── HomePage.jsx                # `/` 서비스 소개 · 기능 이동 (김혜연)
 │   │   ├── assistant/
-│   │   │   └── AssistantPage.jsx           # `/assistant` 업무 분석 · 문서 생성 (이상진)
+│   │   │   └── AssistantPage.jsx           # `/assistant` 업무 분석 · 문서 생성 (김동희)
 │   │   ├── official/
-│   │   │   └── OfficialDocumentPage.js     # `/official` 공문 자동 생성 (이상진)
+│   │   │   └── OfficialDocumentPage.jsx    # `/official` 공문 자동 생성 (최지은)
 │   │   ├── analysis/
-│   │   │   └── AnalysisPage.jsx            # `/analysis` 문서에서 업무 정보 추출 (김혜연)
+│   │   │   └── AnalysisPage.jsx            # `/analysis` 문서에서 업무 정보 추출 (이상진)
 │   │   ├── editor/
 │   │   │   └── DocumentEditorPage.jsx      # `/editor` AI 문서 교정 · 문체 변경 (정하린)
-│   │   └── archive/
-│   │       └── DocumentArchivePage.jsx     # `/archive` 문서 보관함 (김혜연)
+│   │   ├── archive/
+│   │   │   └── DocumentArchivePage.jsx     # `/archive` 문서 보관함 (김혜연)
+│   │   └── ui/
+│   │       └── UiGuidePage.jsx             # `/ui` UI 가이드
 │   ├── styles/
-│   │   ├── App.css
-│   │   └── index.css
-│   ├── utils/                              # 공통 유틸 함수
-│   ├── App.jsx                             # 라우트 6개 등록
+│   │   ├── index.css
+│   │   └── theme.css                       # 공통 토큰·테마
+│   ├── utils/                              # 공통 유틸 (AI 응답, export 등)
+│   ├── util/                               # 날짜·파일 유틸
+│   ├── App.jsx                             # 라우트 7개 등록
 │   └── main.jsx                            # 엔트리, BrowserRouter
-├── .env                                    # VITE_OPENAI_API_KEY (Git 제외)
+├── .env                                    # VITE_* API 키 (Git 제외)
+├── .env.example                            # 환경 변수 예시
+├── CONVENTION.md
 ├── .gitignore
 ├── eslint.config.js
 ├── index.html
@@ -98,10 +113,10 @@ AI 호출은 회사(OpenAI/Gemini/Claude)에 종속되지 않도록 다음 구�
 
 | 경로         | 페이지               | 담당   | 역할                                       |
 | ------------ | -------------------- | ------ | ------------------------------------------ |
-| `/`          | HomePage             | 정하린 | 서비스 소개 및 기능 이동                   |
-| `/assistant` | AssistantPage        | 이상진 | 업무 분석 및 문서 생성 (AI Task Assistant) |
-| `/official`  | OfficialDocumentPage | 이상진 | 공문 자동 생성                             |
-| `/analysis`  | DocumentAnalysisPage | 김혜연 | 문서에서 업무 정보 추출                    |
+| `/`          | HomePage             | 김혜연 | 서비스 소개 및 기능 이동                   |
+| `/assistant` | AssistantPage        | 김동희 | 업무 분석 및 문서 생성 (AI Task Assistant) |
+| `/official`  | OfficialDocumentPage | 최지은 | 공문 자동 생성                             |
+| `/analysis`  | DocumentAnalysisPage | 이상진 | 문서에서 업무 정보 추출                    |
 | `/editor`    | DocumentEditorPage   | 정하린 | AI 문서 교정 및 문체 변경                  |
 | `/archive`   | DocumentArchivePage  | 김혜연 | 문서 보관함                                |
 
