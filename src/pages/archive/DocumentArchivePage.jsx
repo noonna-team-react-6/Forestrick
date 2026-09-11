@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ArchiveDocumentCard from "../../components/archive/ArchiveDocumentCard";
 import { IconDownload, IconPlus, IconSearch } from "../../components/common/Icons";
 import ModalFrame from "../../components/common/ModalFrame";
@@ -38,9 +38,10 @@ const previewDocuments = [
 
 export default function DocumentArchivePage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { documents } = useDocuments();
   const [activeTab, setActiveTab] = useState("my-documents");
-  const [query, setQuery] = useState("");
+  const query = searchParams.get("q") ?? "";
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isSavingPdf, setIsSavingPdf] = useState(false);
   const officialPreviewRef = useRef(null);
@@ -58,11 +59,13 @@ export default function DocumentArchivePage() {
 
     return archiveDocuments.filter((document) => {
       const category = document.category ?? document.type ?? "문서";
+      const content = String(document.content ?? "");
       const matchesTab = activeTab === "my-documents" || priorities[document.id] !== undefined;
       const matchesSearch =
         !normalizedQuery ||
-        document.title.toLowerCase().includes(normalizedQuery) ||
-        category.toLowerCase().includes(normalizedQuery);
+        String(document.title).toLowerCase().includes(normalizedQuery) ||
+        category.toLowerCase().includes(normalizedQuery) ||
+        content.toLowerCase().includes(normalizedQuery);
 
       return matchesTab && matchesSearch;
     });
@@ -105,6 +108,18 @@ export default function DocumentArchivePage() {
     }
   };
 
+  function handleQueryChange(nextQuery) {
+    const nextSearchParams = new URLSearchParams(searchParams);
+
+    if (nextQuery) {
+      nextSearchParams.set("q", nextQuery);
+    } else {
+      nextSearchParams.delete("q");
+    }
+
+    setSearchParams(nextSearchParams, { replace: true });
+  }
+
   return (
     <section className="document-archive">
       <PageHeader
@@ -122,8 +137,8 @@ export default function DocumentArchivePage() {
             <input
               type="search"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="문서 제목으로 검색"
+              onChange={(event) => handleQueryChange(event.target.value)}
+              placeholder="문서 제목 또는 내용으로 검색"
             />
           </label>
           <button className="document-archive__create-button" type="button" onClick={() => navigate("/official")}>
