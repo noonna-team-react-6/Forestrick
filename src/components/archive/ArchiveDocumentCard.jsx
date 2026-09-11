@@ -1,4 +1,5 @@
 import { IconFile, IconStar, IconStarFill } from "../common/Icons";
+import formatDocumentDate from "../../utils/formatDocumentDate";
 
 const priorityLabels = {
   none: "중요도 없음",
@@ -31,7 +32,7 @@ export default function ArchiveDocumentCard({
 
         <span className="archive-document-card__category">{category}</span>
         <h2>{document.title}</h2>
-        <p>최근 수정 · {updatedAt}</p>
+      <p>최근 수정 · {formatDocumentDate(updatedAt)}</p>
       </button>
       <button
         className={`archive-document-card__priority archive-document-card__priority--${priority}`}

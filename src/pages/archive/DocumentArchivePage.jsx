@@ -9,6 +9,7 @@ import DocumentPreview from "../../components/official/DocumentPreview";
 import useDocuments from "../../hooks/useDocuments";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { getAIStatus } from "../../utils/aiStatus";
+import formatDocumentDate from "../../utils/formatDocumentDate";
 import { downloadElementAsPdf } from "../../utils/pdfExport";
 import "./DocumentArchivePage.css";
 
@@ -191,7 +192,7 @@ export default function DocumentArchivePage() {
                 </span>
                 <h2>{selectedDocument.title}</h2>
                 <p>
-                  최근 수정 · {selectedDocument.updatedAt ?? selectedDocument.createdAt ?? "정보 없음"}
+                  최근 수정 · {formatDocumentDate(selectedDocument.updatedAt ?? selectedDocument.createdAt)}
                 </p>
               </div>
               <button
