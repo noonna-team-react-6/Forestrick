@@ -1,20 +1,22 @@
+import "../../styles/ProgressModal.css";
+
 export default function ProgressModal({
   progress,
   message,
 }) {
   return (
     <div
-      className="modal-backdrop"
+      className="ai-progress-backdrop"
       role="dialog"
       aria-modal="true"
       aria-label="AI 문서 생성 진행"
     >
-      <div className="progress-modal">
-        <div className="progress-symbol">
+      <div className="ai-progress-modal">
+        <div className="ai-progress-symbol">
           ✦
         </div>
 
-        <span className="progress-kicker">
+        <span className="ai-progress-kicker">
           FORESTRICK AI
         </span>
 
@@ -22,24 +24,24 @@ export default function ProgressModal({
           AI가 문서를 작성하고 있습니다.
         </h2>
 
-        <p className="progress-message">
+        <p className="ai-progress-message">
           {message}
         </p>
 
-        <div className="progress-track">
+        <div className="ai-progress-track">
           <div
-            className="progress-fill"
+            className="ai-progress-fill"
             style={{
               width: `${progress}%`,
             }}
           />
         </div>
 
-        <strong className="progress-percent">
+        <strong className="ai-progress-percent">
           {progress}%
         </strong>
 
-        <p className="progress-caption">
+        <p className="ai-progress-caption">
           잠시만 기다려주세요.
         </p>
       </div>
