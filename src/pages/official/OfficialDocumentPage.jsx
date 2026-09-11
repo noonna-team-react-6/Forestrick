@@ -72,12 +72,13 @@ export default function OfficialDocumentPage() {
     setEditing,
     handleGenerate,
     handleRewrite,
-    handleCopy,
     handleSave,
     showInfo,
+    showError,
     previewTemplateId,
     setPreviewTemplateId,
     showDesigns,
+    recommendedDesigns,
   } = useOfficialDocument();
   const [loadingProgress, setLoadingProgress] = useState(0);
   const loadingCopy =
@@ -147,9 +148,8 @@ export default function OfficialDocumentPage() {
         <OfficialPreviewPane
           editing={editing}
           onToggleEditing={() => setEditing((open) => !open)}
-          onCopy={handleCopy}
-          onPrint={() => showInfo("인쇄는 다음 단계에서 연결됩니다.")}
-          onFile={() => showInfo("파일 저장은 다음 단계에서 연결됩니다.")}
+          onCopySuccess={(message) => showInfo(message, "success")}
+          onExportError={showError}
           onSave={handleSave}
           documentType={documentType}
           fields={fields}
@@ -163,12 +163,15 @@ export default function OfficialDocumentPage() {
           stampAtCenter={showStamp && stampAtCenter}
           stampAtName={showStamp && stampAtName}
           onBodyChange={setBody}
+          onFieldChange={updateField}
+          onCompanyNameChange={setCompanyName}
           tone={tone}
           onRewrite={handleRewrite}
           loading={loading}
           previewTemplateId={previewTemplateId}
           onPreviewTemplateChange={setPreviewTemplateId}
           showDesigns={showDesigns}
+          recommendedDesigns={recommendedDesigns}
         />
       </div>
 

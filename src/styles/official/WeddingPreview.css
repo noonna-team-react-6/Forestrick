@@ -1,0 +1,253 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Great+Vibes&display=swap");
+
+.preview-paper.preview-paper--wedding {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: min(100%, 420px);
+  min-height: 640px;
+  margin-inline: auto;
+  padding: 48px 36px 44px;
+  color: #5c4a3a;
+  background: #f7f1e8;
+  border: 0;
+  box-shadow:
+    0 12px 32px rgb(15 23 42 / 18%),
+    inset 0 0 0 1px #e4d4bf;
+  text-align: center;
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+}
+
+.preview-paper.preview-paper--wedding.preview-template--classic {
+  background: #f8f3ea;
+}
+
+.preview-paper.preview-paper--wedding.preview-template--modern {
+  background: #f3ece3;
+  border-left: 18px solid #1c1917;
+  border-right: 18px solid #1c1917;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 22%);
+}
+
+.preview-paper.preview-paper--wedding.preview-template--minimal {
+  background: #f6f4ef;
+  box-shadow:
+    0 12px 32px rgb(15 23 42 / 12%),
+    inset 0 0 0 1px #e8e2d8;
+}
+
+.wedding-floral {
+  position: absolute;
+  top: 88px;
+  width: 64px;
+  height: 240px;
+  color: #c4a574;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wedding-floral--left {
+  left: 8px;
+}
+
+.wedding-floral--right {
+  right: 8px;
+  transform: scaleX(-1);
+}
+
+.wedding-kicker {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 18px;
+  color: #b08a5c;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.preview-template--modern .wedding-kicker {
+  margin-bottom: 22px;
+  color: #6b5340;
+  font-family: "Great Vibes", "Palatino Linotype", cursive;
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.preview-template--minimal .wedding-kicker {
+  margin-bottom: 16px;
+  letter-spacing: 0.42em;
+}
+
+.wedding-names {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+  margin: 0 0 20px;
+}
+
+.wedding-name {
+  margin: 0;
+  color: #4a3b2f;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
+}
+
+.wedding-and {
+  margin: 0;
+  color: #b08a5c;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+}
+
+.wedding-names--inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 18px 0 16px;
+  color: #4a3b2f;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.wedding-diamond {
+  color: #c4a574;
+  font-size: 11px;
+}
+
+.wedding-names .is-placeholder,
+.wedding-names--inline .is-placeholder {
+  color: #cbbba8;
+}
+
+.wedding-photo {
+  position: relative;
+  z-index: 1;
+  width: 168px;
+  height: 210px;
+  margin: 8px auto 24px;
+  overflow: hidden;
+  background: #efe6d8;
+}
+
+.wedding-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wedding-photo--frame {
+  border-radius: 120px 120px 18px 18px;
+  box-shadow: inset 0 0 0 1px #dcc9ae;
+}
+
+.wedding-photo--hex {
+  width: 210px;
+  height: 230px;
+  margin: 4px auto 8px;
+  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  box-shadow: none;
+  background: #eadfce;
+}
+
+.wedding-photo--empty {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  color: #b09b84;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  border: 1px dashed #d4c2aa;
+}
+
+.wedding-photo--hex.wedding-photo--empty {
+  border: 0;
+}
+
+.wedding-poem {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 10px;
+  margin: 0 12px 24px;
+  color: #6b5a4a;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.wedding-poem p {
+  margin: 0;
+}
+
+.wedding-editor {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 120px;
+  margin: 0 0 24px;
+  padding: 12px;
+  border: 1px solid #e4d4bf;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 70%);
+  color: inherit;
+  font: inherit;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.wedding-meta {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.wedding-date,
+.wedding-venue {
+  margin: 0;
+  color: #5c4a3a;
+  letter-spacing: 0.06em;
+}
+
+.wedding-date {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wedding-venue {
+  color: #8a7360;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wedding-extra {
+  position: relative;
+  z-index: 1;
+  margin: 18px 8px 0;
+  color: #8a7360;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 1100px) {
+  .preview-paper.preview-paper--wedding {
+    padding: 40px 24px 36px;
+  }
+
+  .wedding-floral {
+    display: none;
+  }
+}

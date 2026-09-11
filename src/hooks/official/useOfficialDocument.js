@@ -1,13 +1,16 @@
 import { useMemo, useRef, useState } from "react";
-import { applyFieldToBody } from "./applyFieldToBody";
+import { applyFieldToBody, rewriteObituaryAnnouncement } from "./applyFieldToBody";
 import { buildPreviewBody } from "./buildPreviewBody";
-import { proofreadAndVary } from "./proofreadBody";
+import { proofreadAndVary, stripFactList } from "./proofreadBody";
 import {
   DOCUMENT_TYPES,
   SAMPLE_PROMPTS,
   emptyFields,
   findType,
   getSample,
+  isCardType,
+  isImageFieldKey,
+  mergeExtractedFields,
 } from "../../data/official";
 import {
   buildExtractPrompt,
@@ -16,6 +19,7 @@ import {
   buildRewritePrompt,
   inferTypeFromPrompt,
   parseAIJson,
+  resolveRecommendedDesigns,
 } from "../../pages/official/officialAi";
 import useDocuments from "../useDocuments";
 import { useAI } from "../useAI";
@@ -34,7 +38,12 @@ function resolveType(id, prompt, category) {
 }
 
 function hasFieldValues(fields) {
-  return Object.values(fields).some((value) => String(value ?? "").trim());
+  return Object.entries(fields).some(([key, value]) => {
+    if (isImageFieldKey(key) || String(value ?? "").startsWith("data:")) {
+      return false;
+    }
+    return String(value ?? "").trim();
+  });
 }
 
 export function useOfficialDocument() {
@@ -61,6 +70,11 @@ export function useOfficialDocument() {
   const [loadingMessage, setLoadingMessage] = useState("문서를 작성하는 중");
   const [previewTemplateId, setPreviewTemplateId] = useState(null);
   const [showDesigns, setShowDesigns] = useState(false);
+  const [recommendedDesigns, setRecommendedDesigns] = useState([
+    "classic",
+    "modern",
+    "minimal",
+  ]);
   const syncedFieldsRef = useRef(emptyFields());
   const savedDocumentIdRef = useRef(null);
   const savedSnapshotRef = useRef(null);
@@ -91,17 +105,39 @@ export function useOfficialDocument() {
 
   const updateField = (key, value) => {
     const previous = syncedFieldsRef.current[key];
+    const nextFields = { ...syncedFieldsRef.current, [key]: value };
     setFields((prev) => ({ ...prev, [key]: value }));
+    rememberFields(nextFields);
+
+    if (isImageFieldKey(key) || String(value ?? "").startsWith("data:")) {
+      return;
+    }
+
     setBody((current) => {
+      if (
+        documentType === "obituary" &&
+        (key === "deceasedName" || key === "relationship")
+      ) {
+        return rewriteObituaryAnnouncement(current, nextFields);
+      }
+
       const patched = applyFieldToBody(current, previous, value);
       if (patched.didSync) return patched.body;
-      return buildPreviewBody(
-        documentType,
-        { ...syncedFieldsRef.current, [key]: value },
-        tone,
-      );
+      return current;
     });
-    rememberFields({ ...syncedFieldsRef.current, [key]: value });
+  };
+
+  const revealDesigns = (parsed, typeId) => {
+    const resolved = Array.isArray(parsed?.designs)
+      ? {
+          designs: parsed.designs,
+          previewTemplateId:
+            parsed.previewTemplateId ?? parsed.designs[0] ?? "classic",
+        }
+      : resolveRecommendedDesigns(parsed, typeId);
+    setRecommendedDesigns(resolved.designs);
+    setPreviewTemplateId(resolved.previewTemplateId);
+    setShowDesigns(true);
   };
 
   const handleTypeChange = (nextType) => {
@@ -111,13 +147,15 @@ export function useOfficialDocument() {
     setBody(nextBody);
     rememberFields(fields);
     setEditing(false);
+    setShowDesigns(false);
+    setPreviewTemplateId(findType(nextType).previewTemplateId ?? "classic");
   };
 
   const handleExample = (nextType) => {
     setPrompt(getSample(nextType).prompt);
   };
 
-  const applyRegistered = (nextType, nextFields, sourceBody) => {
+  const applyRegistered = (nextType, nextFields, sourceBody, designSource) => {
     const nextBody = buildPreviewBody(nextType, nextFields, tone, sourceBody);
     setDocumentType(nextType);
     setFields(nextFields);
@@ -125,15 +163,40 @@ export function useOfficialDocument() {
     setBody(nextBody);
     setShowExtracted(true);
     setEditing(false);
+    revealDesigns(designSource, nextType);
     beginNewDocument();
   };
 
   const fallbackRegister = (userPrompt) => {
     const nextType = inferTypeFromPrompt(userPrompt, category);
-    applyRegistered(nextType, {
-      ...emptyFields(),
-      ...getSample(nextType).fields,
-    });
+    applyRegistered(
+      nextType,
+      mergeExtractedFields(getSample(nextType).fields, fields),
+    );
+  };
+
+  const runRegister = async (userPrompt) => {
+    const raw = await generate(
+      buildRegisterPrompt({
+        prompt: userPrompt,
+        showSignature: isCardType(inferTypeFromPrompt(userPrompt, category))
+          ? false
+          : showSignature,
+      }),
+    );
+    const parsed = parseAIJson(raw);
+    const nextType = resolveType(parsed.documentType, userPrompt, category);
+    const nextFields = mergeExtractedFields(parsed.fields, fields);
+    if (!hasFieldValues(nextFields)) {
+      throw new Error("추출된 정보가 없습니다.");
+    }
+    const designs = resolveRecommendedDesigns(parsed, nextType);
+    return {
+      nextType,
+      nextFields,
+      nextBody: buildPreviewBody(nextType, nextFields, tone, parsed.body),
+      designs,
+    };
   };
 
   const handleRegister = async () => {
@@ -146,19 +209,13 @@ export function useOfficialDocument() {
     setLoadingMessage("정보를 등록하는 중");
 
     try {
-      const raw = await generate(
-        buildRegisterPrompt({
-          prompt: userPrompt,
-          showSignature,
-        }),
+      const registered = await runRegister(userPrompt);
+      applyRegistered(
+        registered.nextType,
+        registered.nextFields,
+        registered.nextBody,
+        registered.designs,
       );
-      const parsed = parseAIJson(raw);
-      const nextType = resolveType(parsed.documentType, userPrompt, category);
-      const nextFields = { ...emptyFields(), ...(parsed.fields ?? {}) };
-      if (!hasFieldValues(nextFields)) {
-        throw new Error("추출된 정보가 없습니다.");
-      }
-      applyRegistered(nextType, nextFields, parsed.body);
     } catch (err) {
       fallbackRegister(userPrompt);
       showError(
@@ -174,14 +231,18 @@ export function useOfficialDocument() {
     setBody(sample.body[nextTone] ?? sample.body.polite);
   };
 
-  const polishBody = async (draftBody) => {
+  const polishBody = async (draftBody, typeId = documentType) => {
     setLoadingMessage("문법을 다듬는 중");
     try {
-      const raw = await generate(buildProofreadPrompt(draftBody));
+      const raw = await generate(buildProofreadPrompt(draftBody, typeId));
       const parsed = parseAIJson(raw);
-      return proofreadAndVary(parsed.body || draftBody);
+      return proofreadAndVary(parsed.body || draftBody, {
+        skipPhraseSwap: typeId === "obituary",
+      });
     } catch {
-      return proofreadAndVary(draftBody);
+      return proofreadAndVary(draftBody, {
+        skipPhraseSwap: typeId === "obituary",
+      });
     }
   };
 
@@ -190,66 +251,73 @@ export function useOfficialDocument() {
     const userPrompt = prompt.trim() || fallbackPrompt;
     if (!prompt.trim()) setPrompt(fallbackPrompt);
     setSessionLoading(true);
-    setLoadingMessage("문서를 작성하는 중");
+    setLoadingMessage("정보를 등록하는 중");
 
     try {
+      const looksCard =
+        isCardType(documentType) ||
+        isCardType(inferTypeFromPrompt(userPrompt, category));
       let created;
 
       try {
-        const raw = await generate(
-          buildExtractPrompt({
-            prompt: userPrompt,
-            tone,
-            companyStyle,
-            showSignature,
-          }),
-        );
-        const parsed = parseAIJson(raw);
-        const nextType = resolveType(parsed.documentType, userPrompt, category);
-        const nextFields = { ...emptyFields(), ...(parsed.fields ?? {}) };
-        created = {
-          nextType,
-          nextFields,
-          nextBody: buildPreviewBody(nextType, nextFields, tone, parsed.body),
-          usedFallback: false,
-          fallbackMessage: "",
-        };
-        if (parsed.tone && TONE_IDS.includes(parsed.tone)) {
-          setTone(parsed.tone);
+        created = await runRegister(userPrompt);
+      } catch {
+        try {
+          const raw = await generate(
+            buildExtractPrompt({
+              prompt: userPrompt,
+              tone,
+              companyStyle: looksCard ? false : companyStyle,
+              showSignature: looksCard ? false : showSignature,
+            }),
+          );
+          const parsed = parseAIJson(raw);
+          const nextType = resolveType(parsed.documentType, userPrompt, category);
+          const nextFields = mergeExtractedFields(parsed.fields, fields);
+          created = {
+            nextType,
+            nextFields,
+            nextBody: buildPreviewBody(nextType, nextFields, tone, parsed.body),
+            designs: resolveRecommendedDesigns(parsed, nextType),
+            usedFallback: false,
+            fallbackMessage: "",
+          };
+          if (parsed.tone && TONE_IDS.includes(parsed.tone)) {
+            setTone(parsed.tone);
+          }
+        } catch (err) {
+          const nextType = resolveType(documentType, userPrompt, category);
+          const filledFields = Object.fromEntries(
+            Object.entries(fields).filter(([, value]) =>
+              String(value ?? "").trim(),
+            ),
+          );
+          const nextFields = mergeExtractedFields(
+            {
+              ...getSample(nextType).fields,
+              ...filledFields,
+            },
+            fields,
+          );
+          created = {
+            nextType,
+            nextFields,
+            nextBody: buildPreviewBody(nextType, nextFields, tone),
+            usedFallback: true,
+            fallbackMessage: err?.message
+              ? `AI 작성에 실패해 예시 문서로 채웠습니다. (${err.message})`
+              : "AI 작성에 실패해 예시 문서로 채웠습니다.",
+          };
         }
-      } catch (err) {
-        const nextType = resolveType(documentType, userPrompt, category);
-        const filledFields = Object.fromEntries(
-          Object.entries(fields).filter(([, value]) =>
-            String(value ?? "").trim(),
-          ),
-        );
-        const nextFields = {
-          ...emptyFields(),
-          ...getSample(nextType).fields,
-          ...filledFields,
-        };
-        created = {
-          nextType,
-          nextFields,
-          nextBody: buildPreviewBody(nextType, nextFields, tone),
-          usedFallback: true,
-          fallbackMessage: err?.message
-            ? `AI 작성에 실패해 예시 문서로 채웠습니다. (${err.message})`
-            : "AI 작성에 실패해 예시 문서로 채웠습니다.",
-        };
       }
 
-      const nextBody = await polishBody(created.nextBody);
+      const nextBody = await polishBody(created.nextBody, created.nextType);
 
       setDocumentType(created.nextType);
       setFields(created.nextFields);
       rememberFields(created.nextFields);
       setBody(nextBody);
-      setPreviewTemplateId(
-        findType(created.nextType).previewTemplateId ?? "classic",
-      );
-      setShowDesigns(true);
+      revealDesigns(created.designs, created.nextType);
       setShowExtracted(true);
       setEditing(false);
       beginNewDocument();
@@ -274,10 +342,10 @@ export function useOfficialDocument() {
 
     try {
       const raw = await generate(
-        buildRewritePrompt({ body: source, tone: nextTone }),
+        buildRewritePrompt({ body: source, tone: nextTone, documentType }),
       );
       const parsed = parseAIJson(raw);
-      setBody(parsed.body || source);
+      setBody(stripFactList(parsed.body || source));
       setEditing(false);
     } catch (err) {
       fallbackRewrite(nextTone);
@@ -286,15 +354,6 @@ export function useOfficialDocument() {
           ? `문체 변경에 실패해 예시 문장으로 바꿨습니다. (${err.message})`
           : "문체 변경에 실패해 예시 문장으로 바꿨습니다.",
       );
-    }
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(body);
-      showInfo("본문을 복사했습니다.", "success");
-    } catch {
-      showError("복사에 실패했습니다.");
     }
   };
 
@@ -391,11 +450,12 @@ export function useOfficialDocument() {
     setEditing,
     handleGenerate,
     handleRewrite,
-    handleCopy,
     handleSave,
     showInfo,
+    showError,
     previewTemplateId: resolvedTemplateId,
     setPreviewTemplateId,
     showDesigns,
+    recommendedDesigns,
   };
 }

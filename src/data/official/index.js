@@ -34,6 +34,40 @@ export function emptyFields() {
   return Object.fromEntries([...keys].map((key) => [key, ""]));
 }
 
+export function isImageField(field) {
+  return field?.type === "image";
+}
+
+export function isImageFieldKey(key) {
+  return DOCUMENT_TYPES.some((type) =>
+    type.fields.some((field) => field.key === key && isImageField(field)),
+  );
+}
+
+export function isCardType(documentType) {
+  return (
+    documentType === "wedding" ||
+    documentType === "obituary" ||
+    documentType === "thanks"
+  );
+}
+
+export function mergeExtractedFields(parsedFields, previousFields = {}) {
+  const next = { ...emptyFields(), ...(parsedFields ?? {}) };
+
+  DOCUMENT_TYPES.forEach((type) => {
+    type.fields.forEach((field) => {
+      if (!isImageField(field)) return;
+      const previous = previousFields[field.key];
+      next[field.key] = String(previous ?? "").startsWith("data:")
+        ? previous
+        : "";
+    });
+  });
+
+  return next;
+}
+
 export function applySample(documentType) {
   const sample = getSample(documentType);
   return {

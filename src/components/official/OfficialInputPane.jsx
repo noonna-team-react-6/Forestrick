@@ -6,6 +6,8 @@ import {
   DOCUMENT_CATEGORIES,
   DOCUMENT_TYPES,
   EXAMPLE_CHIPS,
+  isCardType,
+  isImageField,
 } from "../../data/official";
 import { ToneRadio } from "./DocumentTone";
 import StampUpload from "./StampUpload";
@@ -52,6 +54,7 @@ export default function OfficialInputPane({
   const selectedType = DOCUMENT_TYPES.find((item) => item.id === documentType);
   const formFields =
     selectedType?.category === category ? visibleFields : [];
+  const isCard = isCardType(documentType);
   const promptPlaceholder = isWorkTab
     ? "예: 다음 주 월요일 시스템 점검 공지를 작성해 주세요. 대상은 전 직원입니다."
     : "예: 홍oo 과장님 부친께서 별세하셨습니다. 빈소는 OO병원이고 발인은 9월 7일입니다.";
@@ -137,6 +140,7 @@ export default function OfficialInputPane({
               됩니다.
             </p>
           ) : null}
+          <div className="official-extract">
           <Button
             variant="outline"
             className="official-toggle"
@@ -162,25 +166,41 @@ export default function OfficialInputPane({
             aria-hidden={!showExtracted}
           >
             <div className="official-form__inner">
-              {formFields.map((field) => (
-                <Input
-                  key={field.key}
-                  width="full"
-                  label={field.label}
-                  placeholder={field.label}
-                  multiline={Boolean(field.multiline)}
-                  minRows={field.multiline ? 3 : undefined}
-                  value={fields[field.key] ?? ""}
-                  onChange={(event) =>
-                    onFieldChange(field.key, event.target.value)
-                  }
-                />
-              ))}
+              {formFields.map((field) =>
+                isImageField(field) ? (
+                  <StampUpload
+                    key={field.key}
+                    className="stamp-upload--photo"
+                    label={field.label}
+                    emptyLabel={`${field.label} 넣기`}
+                    changeLabel={`${field.label} 바꾸기`}
+                    alt={`선택한 ${field.label}`}
+                    value={fields[field.key] || null}
+                    onChange={(next) => onFieldChange(field.key, next ?? "")}
+                  />
+                ) : (
+                  <Input
+                    key={field.key}
+                    width="full"
+                    label={field.label}
+                    placeholder={field.label}
+                    multiline={Boolean(field.multiline)}
+                    minRows={field.multiline ? 3 : undefined}
+                    value={fields[field.key] ?? ""}
+                    onChange={(event) =>
+                      onFieldChange(field.key, event.target.value)
+                    }
+                  />
+                ),
+              )}
             </div>
           </div>
+          </div>
 
+          <div className="official-compose">
           <ToneRadio value={tone} onChange={onToneChange} disabled={loading} />
 
+          {isCard ? null : (
           <div className="official-checks">
             <div className="official-check">
               <label>
@@ -282,6 +302,7 @@ export default function OfficialInputPane({
               ) : null}
             </div>
           </div>
+          )}
 
           <Button
             variant="gradient"
@@ -294,6 +315,7 @@ export default function OfficialInputPane({
             <IconSpark />
             AI로 작성하기
           </Button>
+          </div>
       </>
     </Panel>
   );

@@ -1,0 +1,27 @@
+.preview-inline-editor {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto 8px;
+  padding: 6px 10px;
+  border: 1px dashed rgb(37 99 235 / 42%);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 82%);
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.preview-inline-editor:focus {
+  outline: 2px solid rgb(37 99 235 / 28%);
+  border-color: rgb(37 99 235 / 70%);
+}
+
+textarea.preview-inline-editor {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.75;
+}

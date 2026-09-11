@@ -87,6 +87,51 @@
   box-shadow: inset 0 0 0 1px #e5e7eb;
 }
 
+.official-designs__thumb--wedding.official-designs__thumb--classic {
+  background: #f8f3ea;
+  box-shadow: inset 0 0 0 1px #e4d4bf;
+}
+
+.official-designs__thumb--wedding.official-designs__thumb--modern {
+  background: linear-gradient(90deg, #1c1917 12%, #f3ece3 12%, #f3ece3 88%, #1c1917 88%);
+  box-shadow: none;
+}
+
+.official-designs__thumb--wedding.official-designs__thumb--minimal {
+  background: #f6f4ef;
+  box-shadow: inset 0 0 0 1px #e8e2d8;
+}
+
+.official-designs__thumb--obituary.official-designs__thumb--classic {
+  background: #f7f4ee;
+  box-shadow: inset 0 0 0 1px #ddd6c8;
+}
+
+.official-designs__thumb--obituary.official-designs__thumb--modern {
+  background: linear-gradient(#6b6b6b, #2b2b2b);
+  box-shadow: none;
+}
+
+.official-designs__thumb--obituary.official-designs__thumb--minimal {
+  background: #1f1f1f;
+  box-shadow: inset 0 0 0 1px #3a3a3a;
+}
+
+.official-designs__thumb--thanks.official-designs__thumb--classic {
+  background: #f4efe4;
+  box-shadow: inset 0 0 0 1px #d8cbb6;
+}
+
+.official-designs__thumb--thanks.official-designs__thumb--modern {
+  background: #fdeee6;
+  box-shadow: inset 0 0 0 1px #f0c8c0;
+}
+
+.official-designs__thumb--thanks.official-designs__thumb--minimal {
+  background: #fffdf8;
+  box-shadow: inset 0 0 0 3px #c9a24a;
+}
+
 .official-preview-stage {
   display: flex;
   flex: 0 0 auto;

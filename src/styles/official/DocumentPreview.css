@@ -17,15 +17,6 @@
   text-align: center;
 }
 
-.preview-paper--wedding {
-  background: #fffaf4;
-  border: 12px solid #ead9c1;
-  box-shadow:
-    0 12px 32px rgb(15 23 42 / 8%),
-    inset 0 0 0 1px #d4b896;
-  text-align: center;
-}
-
 .preview-paper--notice {
   background: #f8f5ef;
   text-align: left;
@@ -58,10 +49,6 @@
   font-size: 32px;
   font-weight: 700;
   letter-spacing: 0.28em;
-}
-
-.preview-paper--wedding .preview-title {
-  letter-spacing: 0.4em;
 }
 
 .preview-paper--notice .preview-title {
@@ -134,14 +121,26 @@
   font-size: 14px;
 }
 
-.preview-paper--obituary .preview-fields,
-.preview-paper--wedding .preview-fields {
-  justify-items: center;
+.preview-paper--obituary .preview-fields {
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
+  grid-template-columns: max-content max-content;
+  column-gap: 12px;
+  justify-items: stretch;
 }
 
-.preview-paper--obituary .preview-fields__row,
-.preview-paper--wedding .preview-fields__row {
-  grid-template-columns: auto auto;
+.preview-paper--obituary .preview-fields__row {
+  display: contents;
+}
+
+.preview-paper--obituary .preview-fields dt {
+  text-align: right;
+}
+
+.preview-paper--obituary .preview-fields dd {
+  text-align: left;
+  justify-self: start;
 }
 
 .preview-fields dd {

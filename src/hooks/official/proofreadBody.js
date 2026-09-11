@@ -32,6 +32,31 @@ function varyPhrases(body) {
   return body.split(to).join(from);
 }
 
-export function proofreadAndVary(body) {
-  return varyPhrases(cleanGrammar(body));
+function stripFactList(body) {
+  let text = String(body ?? "");
+
+  text = text.replace(/^\s*\[[^\]]+\]\s*/g, "");
+  text = text.replace(/-+\s*다\s*음\s*-+\s*/g, " ");
+  text = text.replace(
+    /\d+\.\s*(?:일시|장소|신랑|신부|빈소|발인|수신|대상|기한|제목|예식\s*일시|예식\s*장소)[:：]?\s*[^\n]*/g,
+    " ",
+  );
+  text = text.replace(
+    /(?:^|\n)\s*(?:일시|장소|신랑|신부|빈소|발인|수신|대상)[:：]\s*[^\n]*/g,
+    "\n",
+  );
+
+  return text
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/ {2,}/g, " ")
+    .trim();
 }
+
+export function proofreadAndVary(body, options = {}) {
+  const cleaned = cleanGrammar(stripFactList(body));
+  if (options.skipPhraseSwap) return cleaned;
+  return varyPhrases(cleaned);
+}
+
+export { stripFactList };

@@ -1,0 +1,246 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&display=swap");
+
+.preview-paper.preview-paper--obituary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: min(100%, 420px);
+  min-height: 640px;
+  margin-inline: auto;
+  padding: 48px 36px 40px;
+  color: #2c2c2c;
+  background: #f7f4ee;
+  border: 0;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 22%);
+  text-align: center;
+  font-family: "Cormorant Garamond", "Times New Roman", serif;
+}
+
+.preview-paper.preview-paper--obituary.preview-template--modern,
+.preview-paper.preview-paper--obituary.preview-template--minimal {
+  color: #f4f0e8;
+  background: #2b2b2b;
+}
+
+.preview-paper.preview-paper--obituary.preview-template--minimal {
+  background: #1f1f1f;
+}
+
+.obituary-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.obituary-bg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: transparent;
+}
+
+.preview-paper--obituary.has-background.preview-template--classic .obituary-bg-overlay {
+  background: rgb(247 244 238 / 78%);
+}
+
+.preview-paper--obituary.has-background.preview-template--modern .obituary-bg-overlay,
+.preview-paper--obituary.has-background.preview-template--minimal .obituary-bg-overlay {
+  background: rgb(18 18 18 / 58%);
+}
+
+.obituary-plant,
+.obituary-bloom,
+.obituary-ribbon,
+.obituary-kicker,
+.obituary-title,
+.obituary-body,
+.obituary-editor,
+.obituary-facts,
+.obituary-extra,
+.obituary-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.obituary-plant {
+  position: absolute;
+  right: 10px;
+  bottom: 72px;
+  width: 92px;
+  height: 150px;
+  color: #7d8a78;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.obituary-bloom {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  color: #d8d4cc;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
+}
+
+.obituary-bloom--tl {
+  top: 8px;
+  left: 4px;
+}
+
+.obituary-bloom--br {
+  right: 4px;
+  bottom: 8px;
+  transform: rotate(180deg);
+}
+
+.obituary-kicker {
+  margin: 0 0 6px;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  opacity: 0.72;
+}
+
+.obituary-title {
+  margin: 0 0 12px;
+  font-size: 42px;
+  font-weight: 600;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+}
+
+.preview-template--minimal .obituary-title {
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+}
+
+.obituary-ribbon {
+  width: 42px;
+  height: 54px;
+  margin: 0 auto 22px;
+  color: #1a1a1a;
+}
+
+.preview-template--modern .obituary-ribbon,
+.preview-template--minimal .obituary-ribbon {
+  color: #f4f0e8;
+}
+
+.obituary-body {
+  display: grid;
+  gap: 10px;
+  margin: 0 8px 24px;
+  font-size: 16px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+}
+
+.obituary-body p {
+  margin: 0;
+}
+
+.obituary-body.is-placeholder,
+.obituary-footer__name.is-placeholder {
+  color: inherit;
+  opacity: 0.4;
+}
+
+.obituary-editor {
+  width: 100%;
+  min-height: 120px;
+  margin: 0 0 24px;
+  padding: 12px;
+  border: 1px solid rgb(0 0 0 / 12%);
+  border-radius: 12px;
+  background: rgb(255 255 255 / 72%);
+  color: #2c2c2c;
+  font: inherit;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.preview-template--modern .obituary-editor,
+.preview-template--minimal .obituary-editor {
+  border-color: rgb(255 255 255 / 18%);
+  background: rgb(0 0 0 / 28%);
+  color: #f4f0e8;
+}
+
+.obituary-facts {
+  display: grid;
+  gap: 8px;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto 20px;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  font-size: 14px;
+}
+
+.obituary-facts li {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.obituary-facts span {
+  opacity: 0.7;
+}
+
+.obituary-facts strong {
+  font-weight: 600;
+}
+
+.obituary-extra {
+  margin: 0 8px 24px;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+  opacity: 0.82;
+  white-space: pre-wrap;
+}
+
+.obituary-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 4px;
+}
+
+.obituary-footer__date {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.obituary-footer__name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.obituary-footer__relation {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+@media (max-width: 1100px) {
+  .preview-paper.preview-paper--obituary {
+    padding: 40px 24px 32px;
+  }
+
+  .obituary-plant {
+    display: none;
+  }
+}

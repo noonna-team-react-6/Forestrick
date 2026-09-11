@@ -139,8 +139,15 @@
   font-size: 13px;
 }
 
+.official-extract {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
 .official-toggle {
-  margin: 0 0 16px;
+  margin: 0;
 }
 
 .official-toggle__arrow {
@@ -185,11 +192,18 @@
   align-items: flex-start;
 }
 
+.official-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
 .official-checks {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin: 16px 0 16px;
+  margin: 0;
   color: var(--color-text);
   font-size: 14px;
 }
@@ -222,5 +236,5 @@
 
 .official-submit {
   width: 100%;
-  margin-top: auto;
+  margin-top: 0;
 }
