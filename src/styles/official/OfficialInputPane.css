@@ -133,23 +133,58 @@
   background: var(--color-primary-light);
 }
 
-.official-toggle {
-  display: block;
-  margin: 4px 0 16px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-primary);
-  font: inherit;
+.official-extract-hint {
+  margin: 4px 0 10px;
+  color: var(--color-text-secondary);
   font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
+}
+
+.official-extract {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.official-toggle {
+  margin: 0;
+}
+
+.official-toggle__arrow {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: transform 0.22s ease;
+  transform: rotate(90deg);
+}
+
+.official-toggle__arrow.is-open {
+  transform: rotate(-90deg);
 }
 
 .official-form {
   display: grid;
-  gap: 12px;
+  grid-template-rows: 0fr;
+  margin-bottom: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    grid-template-rows 0.28s ease,
+    opacity 0.2s ease,
+    margin-bottom 0.28s ease;
+}
+
+.official-form.is-open {
+  grid-template-rows: 1fr;
   margin-bottom: 20px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.official-form__inner {
+  overflow: hidden;
+  min-height: 0;
+  display: grid;
+  gap: 12px;
 }
 
 .official-form .MuiOutlinedInput-root.MuiInputBase-multiline {
@@ -157,11 +192,18 @@
   align-items: flex-start;
 }
 
+.official-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
 .official-checks {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin: 16px 0 16px;
+  margin: 0;
   color: var(--color-text);
   font-size: 14px;
 }
@@ -194,15 +236,5 @@
 
 .official-submit {
   width: 100%;
-  margin-top: auto;
-}
-
-.official-work-placeholder {
-  padding: 40px 8px;
-  color: var(--color-text-secondary);
-}
-
-.official-work-placeholder h2 {
-  margin: 0 0 8px;
-  color: var(--color-text);
+  margin-top: 0;
 }

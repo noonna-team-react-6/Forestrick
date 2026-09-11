@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import Button from "../common/Button";
 import { IconTrash, IconUpload } from "../common/Icons";
-import "./StampUpload.css";
+import "../../styles/official/StampUpload.css";
 
 const ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
 
@@ -10,9 +10,24 @@ const ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
  * @param {string | null} props.value data URL
  * @param {(next: string | null) => void} props.onChange
  * @param {boolean} [props.disabled]
+ * @param {string} [props.label]
+ * @param {string} [props.emptyLabel]
+ * @param {string} [props.changeLabel]
+ * @param {string} [props.alt]
+ * @param {string} [props.className]
  */
-export default function StampUpload({ value, onChange, disabled = false }) {
+export default function StampUpload({
+  value,
+  onChange,
+  disabled = false,
+  label = "도장",
+  emptyLabel = "도장 넣기",
+  changeLabel = "도장 바꾸기",
+  alt = "선택한 도장",
+  className,
+}) {
   const inputRef = useRef(null);
+  const rootClass = ["stamp-upload", className].filter(Boolean).join(" ");
 
   const openPicker = () => {
     inputRef.current?.click();
@@ -31,8 +46,8 @@ export default function StampUpload({ value, onChange, disabled = false }) {
   };
 
   return (
-    <div className="stamp-upload">
-      <p className="stamp-upload__label">도장</p>
+    <div className={rootClass}>
+      <p className="stamp-upload__label">{label}</p>
       <input
         ref={inputRef}
         className="stamp-upload__input"
@@ -44,7 +59,7 @@ export default function StampUpload({ value, onChange, disabled = false }) {
 
       {value ? (
         <div className="stamp-upload__preview">
-          <img src={value} alt="선택한 도장" />
+          <img src={value} alt={alt} />
           <div className="stamp-upload__actions">
             <Button
               variant="outline"
@@ -53,7 +68,7 @@ export default function StampUpload({ value, onChange, disabled = false }) {
               onClick={openPicker}
             >
               <IconUpload size={16} />
-              도장 바꾸기
+              {changeLabel}
             </Button>
             <Button
               variant="outline"
@@ -69,7 +84,7 @@ export default function StampUpload({ value, onChange, disabled = false }) {
       ) : (
         <Button variant="outline" disabled={disabled} onClick={openPicker}>
           <IconUpload />
-          도장 넣기
+          {emptyLabel}
         </Button>
       )}
     </div>

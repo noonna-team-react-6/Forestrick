@@ -36,3 +36,13 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.stamp-upload--photo {
+  margin-bottom: 4px;
+}
+
+.stamp-upload--photo .stamp-upload__preview img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+}

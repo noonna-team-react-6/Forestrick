@@ -1,0 +1,159 @@
+.official-pane--preview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+.official-preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.official-pane--preview .official-pane__title {
+  margin: 0;
+}
+
+.official-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.official-designs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.official-designs__label {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.official-designs__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.official-designs__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: #0c1118;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.official-designs__item.is-active {
+  border-color: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.official-designs__thumb {
+  display: block;
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+}
+
+.official-designs__thumb--classic {
+  background: #f6f0e4;
+  box-shadow: inset 0 0 0 1px #e4d6bf;
+}
+
+.official-designs__thumb--modern {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #dbe4f0;
+}
+
+.official-designs__thumb--minimal {
+  background: #f8fafc;
+  box-shadow: inset 0 0 0 1px #e5e7eb;
+}
+
+.official-designs__thumb--wedding.official-designs__thumb--classic {
+  background: #f8f3ea;
+  box-shadow: inset 0 0 0 1px #e4d4bf;
+}
+
+.official-designs__thumb--wedding.official-designs__thumb--modern {
+  background: linear-gradient(90deg, #1c1917 12%, #f3ece3 12%, #f3ece3 88%, #1c1917 88%);
+  box-shadow: none;
+}
+
+.official-designs__thumb--wedding.official-designs__thumb--minimal {
+  background: #f6f4ef;
+  box-shadow: inset 0 0 0 1px #e8e2d8;
+}
+
+.official-designs__thumb--obituary.official-designs__thumb--classic {
+  background: #f7f4ee;
+  box-shadow: inset 0 0 0 1px #ddd6c8;
+}
+
+.official-designs__thumb--obituary.official-designs__thumb--modern {
+  background: linear-gradient(#6b6b6b, #2b2b2b);
+  box-shadow: none;
+}
+
+.official-designs__thumb--obituary.official-designs__thumb--minimal {
+  background: #1f1f1f;
+  box-shadow: inset 0 0 0 1px #3a3a3a;
+}
+
+.official-designs__thumb--thanks.official-designs__thumb--classic {
+  background: #f4efe4;
+  box-shadow: inset 0 0 0 1px #d8cbb6;
+}
+
+.official-designs__thumb--thanks.official-designs__thumb--modern {
+  background: #fdeee6;
+  box-shadow: inset 0 0 0 1px #f0c8c0;
+}
+
+.official-designs__thumb--thanks.official-designs__thumb--minimal {
+  background: #fffdf8;
+  box-shadow: inset 0 0 0 3px #c9a24a;
+}
+
+.official-preview-stage {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  height: fit-content;
+  box-sizing: border-box;
+  padding: 20px 16px;
+  border-radius: 12px;
+  background: #0c1118;
+}
+
+.official-rewrite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.official-rewrite__label {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
