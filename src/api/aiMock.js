@@ -79,10 +79,6 @@ const extractTasksMock = (text) => {
     });
   }
 
-  if (tasks.length === 0) {
-    return [{ assignee: "확인 필요", task: "확인 필요", deadline: "확인 필요" }];
-  }
-
   return tasks;
 };
 

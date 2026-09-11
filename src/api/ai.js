@@ -47,7 +47,8 @@ const PROVIDERS = {
     }),
     body: (prompt, file) => ({
       model: "claude-sonnet-5",
-      max_tokens: 1024,
+      // 첨부 문서가 길면 요약 응답도 길어져서 1024로는 중간에 끊길 수 있음
+      max_tokens: 4096,
       messages: [
         {
           role: "user",

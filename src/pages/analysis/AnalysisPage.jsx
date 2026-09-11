@@ -373,6 +373,8 @@ export default function AnalysisPage() {
                 </li>
               ))}
             </ul>
+          ) : result ? (
+            <p>이 문서에서는 추출할 업무가 없어요.</p>
           ) : (
             <p>담당자와 할 일이 추출됩니다.</p>
           )}
