@@ -192,6 +192,12 @@
   gap: 16px;
 }
 
+.analysis-save-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
 .analysis-result-card {
   padding: 20px;
   border: 1px solid var(--analysis-border);
