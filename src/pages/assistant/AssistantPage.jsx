@@ -15,7 +15,7 @@ import {
 import AssistantInput from "../../components/assistant/AssistantInput";
 import AnalysisResult from "../../components/assistant/AnalysisResult";
 import GeneratedDocument from "../../components/assistant/GeneratedDocument";
-import ProgressModal from "../../components/assistant/ProgressModal";
+import ProgressModal from "../../components/common/ProgressModal";
 
 import "./AssistantPage.css";
 
