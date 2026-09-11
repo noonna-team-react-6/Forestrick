@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import Loading from "../../components/common/Loading";
 import { IconSpark } from "../../components/common/Icons";
 import ModalFrame from "../../components/common/ModalFrame";
+import PageHeader from "../../components/common/PageHeader";
 import Toast, { Error as ErrorToast } from "../../components/common/Toast";
 import OfficialInputPane from "../../components/official/OfficialInputPane";
 import OfficialPreviewPane from "../../components/official/OfficialPreviewPane";
 import { useOfficialDocument } from "../../hooks/official/useOfficialDocument";
+import { getAIStatus } from "../../utils/aiStatus";
 import "./OfficialDocumentPage.css";
 
 const LOADING_COPY = {
@@ -20,6 +22,10 @@ const LOADING_COPY = {
   "문체를 바꾸는 중": {
     title: "AI가 문체를 바꾸고 있습니다.",
     description: "선택한 문체에 맞게 본문을 다듬고 있습니다.",
+  },
+  "문법을 다듬는 중": {
+    title: "AI가 문법을 검사하고 있습니다.",
+    description: "맞춤법과 문장을 다듬고 있습니다.",
   },
 };
 
@@ -69,6 +75,9 @@ export default function OfficialDocumentPage() {
     handleCopy,
     handleSave,
     showInfo,
+    previewTemplateId,
+    setPreviewTemplateId,
+    showDesigns,
   } = useOfficialDocument();
   const [loadingProgress, setLoadingProgress] = useState(0);
   const loadingCopy =
@@ -92,21 +101,12 @@ export default function OfficialDocumentPage() {
 
   return (
     <div className="official-page">
-      <header className="official-header">
-        <div>
-          <p className="official-crumb">
-            WORKSPACE
-            <span aria-hidden="true">›</span>
-            공식 문서 생성기
-          </p>
-          <h2>공식 문서 생성기</h2>
-          <p>
-            양식을 채우지 않아도 됩니다. 사람에게 말하듯 입력하면서 문서를
-            만들어드려요.
-          </p>
-        </div>
-        <span className="official-status">AI 준비 완료</span>
-      </header>
+      <PageHeader
+        breadcrumb="공식 문서 생성기"
+        title="공식 문서 생성기"
+        description="양식을 채우지 않아도 됩니다. 사람에게 말하듯 입력하면서 문서를 만들어드려요."
+        status={loading ? "loading" : getAIStatus()}
+      />
 
       <div className="official-workspace">
         <OfficialInputPane
@@ -166,6 +166,9 @@ export default function OfficialDocumentPage() {
           tone={tone}
           onRewrite={handleRewrite}
           loading={loading}
+          previewTemplateId={previewTemplateId}
+          onPreviewTemplateChange={setPreviewTemplateId}
+          showDesigns={showDesigns}
         />
       </div>
 

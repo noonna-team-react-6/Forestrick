@@ -1,5 +1,6 @@
 .preview-paper {
   position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -28,6 +29,16 @@
 .preview-paper--notice {
   background: #f8f5ef;
   text-align: left;
+}
+
+.preview-header,
+.preview-body,
+.preview-editor,
+.preview-fields,
+.preview-extra,
+.preview-sign {
+  position: relative;
+  z-index: 1;
 }
 
 .preview-header {
@@ -140,27 +151,57 @@
 .preview-sign {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  margin-top: 48px;
-  text-align: right;
-}
-
-.preview-paper--obituary .preview-sign,
-.preview-paper--wedding .preview-sign {
   align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 48px;
   text-align: center;
 }
 
 .preview-sign__dept,
 .preview-sign__name {
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .preview-sign__name {
-  display: inline-flex;
-  align-items: center;
   gap: 6px;
+}
+
+.preview-template--modern {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 28px rgb(15 23 42 / 12%);
+}
+
+.preview-template--modern .preview-company {
+  color: #2563eb;
+}
+
+.preview-template--modern .preview-title {
+  letter-spacing: 0.08em;
+}
+
+.preview-template--minimal {
+  background: #fff;
+  padding-top: 72px;
+  padding-bottom: 64px;
+  border: 1px solid #e5e7eb;
+  box-shadow: none;
+}
+
+.preview-template--minimal .preview-title {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+
+.preview-template--minimal .preview-company {
+  color: #94a3b8;
+  letter-spacing: 0.16em;
 }
 
 .preview-seal {
@@ -206,7 +247,7 @@
   object-fit: contain;
   opacity: 0.22;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
 }
 
 @media (max-width: 1100px) {

@@ -1,16 +1,25 @@
-import { DOCUMENT_TYPES, TONES } from "./Mock";
+import { DOCUMENT_TYPES, TONES } from "../../data/official";
 
-const TONE_LABEL = Object.fromEntries(TONES.map((tone) => [tone.id, tone.label]));
+const TONE_LABEL = Object.fromEntries(
+  TONES.map((tone) => [tone.id, tone.label]),
+);
 
 function fieldSchema() {
   return DOCUMENT_TYPES.map((type) => ({
     id: type.id,
     label: type.label,
-    fields: type.fields.map((field) => field.key).concat(["department", "signerName"]),
+    fields: type.fields
+      .map((field) => field.key)
+      .concat(["department", "signerName"]),
   }));
 }
 
-export function buildExtractPrompt({ prompt, tone, companyStyle, showSignature }) {
+export function buildExtractPrompt({
+  prompt,
+  tone,
+  companyStyle,
+  showSignature,
+}) {
   return [
     "당신은 한국어 공문 작성 도우미입니다.",
     "아래 사용자 요청에서 문서 정보를 추출하고 본문을 작성하세요.",
@@ -44,15 +53,31 @@ export function buildExtractPrompt({ prompt, tone, companyStyle, showSignature }
     .join("\n");
 }
 
-export function inferTypeFromPrompt(prompt) {
+export function inferTypeFromPrompt(prompt, category) {
   const text = String(prompt ?? "");
-  if (/별세|부고|발인|빈소|고인/.test(text)) return "obituary";
-  if (/결혼|청첩|예식|신랑|신부/.test(text)) return "wedding";
-  if (/위문|병가|쾌유/.test(text)) return "consolation";
-  if (/감사/.test(text)) return "thanks";
-  if (/일정\s*변경|일정변경/.test(text)) return "schedule";
-  if (/행사|공유회/.test(text)) return "event";
-  return DOCUMENT_TYPES[0].id;
+  const rules = [
+    { id: "obituary", category: "official", pattern: /별세|부고|발인|빈소|고인/ },
+    { id: "wedding", category: "official", pattern: /결혼|청첩|예식|신랑|신부/ },
+    { id: "consolation", category: "official", pattern: /위문|병가|쾌유/ },
+    { id: "thanks", category: "official", pattern: /감사/ },
+    { id: "schedule", category: "official", pattern: /일정\s*변경|일정변경/ },
+    { id: "event", category: "official", pattern: /행사|공유회/ },
+    { id: "request", category: "work", pattern: /요청|제출|기한/ },
+    { id: "meeting", category: "work", pattern: /회의/ },
+    { id: "alert", category: "work", pattern: /알림/ },
+    { id: "notice", category: "work", pattern: /공지|점검/ },
+  ];
+
+  const match = rules.find(
+    (rule) =>
+      rule.pattern.test(text) && (!category || rule.category === category),
+  );
+  if (match) return match.id;
+
+  const fallback = category
+    ? DOCUMENT_TYPES.find((item) => item.category === category)
+    : DOCUMENT_TYPES[0];
+  return fallback?.id ?? DOCUMENT_TYPES[0].id;
 }
 
 export function buildRegisterPrompt({ prompt, showSignature }) {
@@ -83,6 +108,17 @@ export function buildRegisterPrompt({ prompt, showSignature }) {
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+export function buildProofreadPrompt(body) {
+  return [
+    "다음 공문 본문의 맞춤법, 띄어쓰기, 문법을 검사하고 자연스럽게 고치세요.",
+    "의미와 사실 정보는 유지하되, 문장 표현은 조금 다르게 다듬으세요.",
+    "반드시 JSON만 출력하세요. 설명, 마크다운, 코드펜스는 넣지 마세요.",
+    '응답 형식: {"body":"검수된 본문"}',
+    "본문:",
+    body,
+  ].join("\n");
 }
 
 export function buildRewritePrompt({ body, tone }) {

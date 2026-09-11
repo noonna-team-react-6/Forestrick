@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import Button from "../common/Button";
 import { IconTrash, IconUpload } from "../common/Icons";
-import "./StampUpload.css";
+import "../../styles/official/StampUpload.css";
 
 const ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
 

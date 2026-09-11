@@ -1,4 +1,4 @@
-import { getSample } from "../../pages/official/Mock";
+import { getSample } from "../../data/official";
 import { applyFieldToBody } from "./applyFieldToBody";
 
 export function buildPreviewBody(documentType, fields, tone, sourceBody) {

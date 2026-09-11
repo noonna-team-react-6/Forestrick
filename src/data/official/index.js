@@ -5,7 +5,7 @@ import {
   PREVIEW_TEMPLATES,
   TONES,
 } from "./documentTypes";
-import { EXAMPLE_CHIPS, SAMPLE_PROMPT, SAMPLES, getSample } from "./samples";
+import { EXAMPLE_CHIPS, SAMPLE_PROMPT, SAMPLE_PROMPTS, SAMPLES, getSample } from "./samples";
 
 export {
   COMMON_FIELDS,
@@ -14,6 +14,7 @@ export {
   EXAMPLE_CHIPS,
   PREVIEW_TEMPLATES,
   SAMPLE_PROMPT,
+  SAMPLE_PROMPTS,
   SAMPLES,
   TONES,
   getSample,
@@ -26,25 +27,11 @@ export function findType(documentType) {
 }
 
 export function emptyFields() {
-  return {
-    deceasedName: "",
-    relationship: "",
-    funeralHome: "",
-    funeralDate: "",
-    groomsName: "",
-    bridesName: "",
-    venue: "",
-    date: "",
-    recipient: "",
-    reason: "",
-    title: "",
-    datetime: "",
-    originalDate: "",
-    newDate: "",
-    extra: "",
-    department: "",
-    signerName: "",
-  };
+  const keys = new Set(["department", "signerName"]);
+  DOCUMENT_TYPES.forEach((type) => {
+    type.fields.forEach((field) => keys.add(field.key));
+  });
+  return Object.fromEntries([...keys].map((key) => [key, ""]));
 }
 
 export function applySample(documentType) {

@@ -6,9 +6,11 @@ import {
   IconPencil,
   IconPrint,
 } from "../common/Icons";
+import Panel from "../common/Panel";
+import { PREVIEW_TEMPLATES } from "../../data/official";
 import DocumentPreview from "./DocumentPreview";
 import { ToneButtons } from "./DocumentTone";
-import "./OfficialPreviewPane.css";
+import "../../styles/official/OfficialPreviewPane.css";
 
 export default function OfficialPreviewPane({
   editing,
@@ -32,9 +34,12 @@ export default function OfficialPreviewPane({
   tone,
   onRewrite,
   loading,
+  previewTemplateId,
+  onPreviewTemplateChange,
+  showDesigns,
 }) {
   return (
-    <section className="official-pane official-pane--preview">
+    <Panel className="official-pane official-pane--preview">
       <div className="official-preview-head">
         <h2 className="official-pane__title">미리보기</h2>
         <div className="official-toolbar">
@@ -66,6 +71,32 @@ export default function OfficialPreviewPane({
         </div>
       </div>
 
+      {showDesigns ? (
+        <div className="official-designs">
+          <p className="official-designs__label">추천 디자인</p>
+          <div className="official-designs__list">
+            {PREVIEW_TEMPLATES.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={
+                  previewTemplateId === item.id
+                    ? "official-designs__item is-active"
+                    : "official-designs__item"
+                }
+                onClick={() => onPreviewTemplateChange(item.id)}
+              >
+                <span
+                  className={`official-designs__thumb official-designs__thumb--${item.id}`}
+                  aria-hidden="true"
+                />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <div className="official-preview-stage">
         <DocumentPreview
           documentType={documentType}
@@ -81,6 +112,7 @@ export default function OfficialPreviewPane({
           stampAtName={stampAtName}
           editing={editing}
           onBodyChange={onBodyChange}
+          previewTemplateId={previewTemplateId}
         />
       </div>
 
@@ -88,6 +120,6 @@ export default function OfficialPreviewPane({
         <p className="official-rewrite__label">다른 스타일로 다시 작성</p>
         <ToneButtons value={tone} onChange={onRewrite} disabled={loading} />
       </div>
-    </section>
+    </Panel>
   );
 }

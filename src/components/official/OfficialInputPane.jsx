@@ -1,14 +1,15 @@
 import Button from "../common/Button";
 import Input from "../common/Input";
-import { IconPencil, IconSpark } from "../common/Icons";
+import { IconChevron, IconPencil, IconSpark } from "../common/Icons";
+import Panel from "../common/Panel";
 import {
   DOCUMENT_CATEGORIES,
   DOCUMENT_TYPES,
   EXAMPLE_CHIPS,
-} from "../../pages/official/Mock";
+} from "../../data/official";
 import { ToneRadio } from "./DocumentTone";
 import StampUpload from "./StampUpload";
-import "./OfficialInputPane.css";
+import "../../styles/official/OfficialInputPane.css";
 
 export default function OfficialInputPane({
   category,
@@ -46,9 +47,18 @@ export default function OfficialInputPane({
   onGenerate,
 }) {
   const isWorkTab = category === "work";
+  const categoryTypes = DOCUMENT_TYPES.filter((item) => item.category === category);
+  const categoryChips = EXAMPLE_CHIPS.filter((item) => item.category === category);
+  const selectedType = DOCUMENT_TYPES.find((item) => item.id === documentType);
+  const formFields =
+    selectedType?.category === category ? visibleFields : [];
+  const promptPlaceholder = isWorkTab
+    ? "예: 다음 주 월요일 시스템 점검 공지를 작성해 주세요. 대상은 전 직원입니다."
+    : "예: 홍oo 과장님 부친께서 별세하셨습니다. 빈소는 OO병원이고 발인은 9월 7일입니다.";
 
   return (
-    <section className="official-pane official-pane--input">
+    <Panel className="official-pane official-pane--input">
+      <>
       <div className="official-tabs" role="tablist">
         {DOCUMENT_CATEGORIES.map((item) => (
           <button
@@ -68,23 +78,13 @@ export default function OfficialInputPane({
         ))}
       </div>
 
-      {isWorkTab ? (
-        <div className="official-work-placeholder">
-          <h3>업무문서</h3>
-          <p>
-            업무 문서 작성은 다음 단계에서 연결됩니다. 지금은 공문 / 공지 흐름을
-            사용하세요.
-          </p>
-        </div>
-      ) : (
-        <>
-          <h4 className="official-heading">어떤 문서를 만들까요?</h4>
+      <h4 className="official-heading">어떤 문서를 만들까요?</h4>
           <div className="official-prompt-wrap">
             <Input
               width="full"
               multiline
               minRows={5}
-              placeholder="예: 홍길동 과장님 부친께서 별세하셨습니다. 빈소는 OO병원이고 발인은 9월 7일입니다."
+              placeholder={promptPlaceholder}
               value={prompt}
               onChange={(event) => onPromptChange(event.target.value)}
               className="official-prompt"
@@ -96,7 +96,7 @@ export default function OfficialInputPane({
 
           <div className="official-examples">
             <div className="official-examples__chips">
-              {EXAMPLE_CHIPS.map((item) => (
+              {categoryChips.map((item) => (
                 <button
                   key={item.documentType}
                   type="button"
@@ -118,7 +118,7 @@ export default function OfficialInputPane({
           </div>
 
           <div className="official-types">
-            {DOCUMENT_TYPES.map((item) => (
+            {categoryTypes.map((item) => (
               <Button
                 key={item.id}
                 variant="outline"
@@ -131,17 +131,38 @@ export default function OfficialInputPane({
             ))}
           </div>
 
-          <button
-            type="button"
+          {selectedType?.category === category ? (
+            <p className="official-extract-hint">
+              {selectedType.label} 문서로 파악했어요. 아래 정보만 확인하고 고치면
+              됩니다.
+            </p>
+          ) : null}
+          <Button
+            variant="outline"
             className="official-toggle"
             onClick={onToggleExtracted}
+            aria-expanded={showExtracted}
+            sx={{ width: "100%", borderRadius: "999px" }}
           >
             {showExtracted ? "추출된 정보 숨기기" : "추출된 정보 보이기"}
-          </button>
+            <IconChevron
+              size={16}
+              className={
+                showExtracted
+                  ? "official-toggle__arrow is-open"
+                  : "official-toggle__arrow"
+              }
+            />
+          </Button>
 
-          {showExtracted ? (
-            <div className="official-form">
-              {visibleFields.map((field) => (
+          <div
+            className={
+              showExtracted ? "official-form is-open" : "official-form"
+            }
+            aria-hidden={!showExtracted}
+          >
+            <div className="official-form__inner">
+              {formFields.map((field) => (
                 <Input
                   key={field.key}
                   width="full"
@@ -156,7 +177,7 @@ export default function OfficialInputPane({
                 />
               ))}
             </div>
-          ) : null}
+          </div>
 
           <ToneRadio value={tone} onChange={onToneChange} disabled={loading} />
 
@@ -273,8 +294,7 @@ export default function OfficialInputPane({
             <IconSpark />
             AI로 작성하기
           </Button>
-        </>
-      )}
-    </section>
+      </>
+    </Panel>
   );
 }

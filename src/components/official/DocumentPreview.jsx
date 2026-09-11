@@ -1,5 +1,5 @@
-import { findType } from "../../pages/official/Mock";
-import "./DocumentPreview.css";
+import { findType } from "../../data/official";
+import "../../styles/official/DocumentPreview.css";
 
 function FieldList({ fields, type, highlight }) {
   return (
@@ -51,9 +51,7 @@ function Signature({
   return (
     <div className="preview-sign">
       {showDepartment ? (
-        <p className="preview-sign__dept">
-          {fields.department || "담당 부서"}
-        </p>
+        <p className="preview-sign__dept">{fields.department || "담당 부서"}</p>
       ) : null}
       {showNameLine ? (
         <p className="preview-sign__name">
@@ -90,18 +88,20 @@ export default function DocumentPreview({
   stampAtName,
   editing,
   onBodyChange,
+  previewTemplateId,
 }) {
   const type = findType(documentType);
   const template = type.template ?? "notice";
+  const templateId = previewTemplateId ?? type.previewTemplateId ?? "classic";
   const paragraphs = String(body || "")
     .split(/\n{2,}/)
     .filter(Boolean);
 
   return (
     <article
-      className={`preview-paper preview-paper--${template} preview-template--${type.previewTemplateId ?? "classic"}`}
+      className={`preview-paper preview-paper--${template} preview-template--${templateId}`}
       data-template={type.template}
-      data-template-id={type.previewTemplateId}
+      data-template-id={templateId}
     >
       {showStamp && stampAtCenter && stampImage ? (
         <img

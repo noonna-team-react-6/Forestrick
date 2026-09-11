@@ -1,8 +1,6 @@
 import Button from "../common/Button";
-import { TONES } from "../../pages/official/Mock";
-import "./DocumentTone.css";
-
-export { TONES };
+import { TONES } from "../../data/official";
+import "../../styles/official/DocumentTone.css";
 
 /**
  * 생성 시 문체. 값: polite | formal | concise
