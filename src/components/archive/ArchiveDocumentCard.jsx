@@ -6,7 +6,12 @@ const priorityLabels = {
   high: "중요도 최상",
 };
 
-export default function ArchiveDocumentCard({ document, priority, onPriorityChange }) {
+export default function ArchiveDocumentCard({
+  document,
+  priority,
+  onPriorityChange,
+  onOpen,
+}) {
   const isImportant = priority !== "none";
   const StarIcon = priority === "high" ? IconStarFill : IconStar;
   const category = document.category ?? document.type ?? "문서";
@@ -14,25 +19,30 @@ export default function ArchiveDocumentCard({ document, priority, onPriorityChan
 
   return (
     <article className="archive-document-card">
-      <div className="archive-document-card__top">
+      <button
+        className="archive-document-card__open"
+        type="button"
+        aria-label={`${document.title} 문서 열기`}
+        onClick={onOpen}
+      >
         <span className="archive-document-card__icon">
           <IconFile size={20} />
         </span>
-        <button
-          className={`archive-document-card__priority archive-document-card__priority--${priority}`}
-          type="button"
-          aria-label={`${document.title} ${priorityLabels[priority]}`}
-          title={`${priorityLabels[priority]} · 클릭하여 변경`}
-          onClick={onPriorityChange}
-        >
-          <StarIcon size={20} />
-          <span className="sr-only">{isImportant ? priorityLabels[priority] : "중요도 설정"}</span>
-        </button>
-      </div>
 
-      <span className="archive-document-card__category">{category}</span>
-      <h2>{document.title}</h2>
-      <p>최근 수정 · {updatedAt}</p>
+        <span className="archive-document-card__category">{category}</span>
+        <h2>{document.title}</h2>
+        <p>최근 수정 · {updatedAt}</p>
+      </button>
+      <button
+        className={`archive-document-card__priority archive-document-card__priority--${priority}`}
+        type="button"
+        aria-label={`${document.title} ${priorityLabels[priority]}`}
+        title={`${priorityLabels[priority]} · 클릭하여 변경`}
+        onClick={onPriorityChange}
+      >
+        <StarIcon size={20} />
+        <span className="sr-only">{isImportant ? priorityLabels[priority] : "중요도 설정"}</span>
+      </button>
     </article>
   );
 }

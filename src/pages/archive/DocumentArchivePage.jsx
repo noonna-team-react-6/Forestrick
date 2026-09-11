@@ -1,12 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ArchiveDocumentCard from "../../components/archive/ArchiveDocumentCard";
-import { IconPlus, IconSearch } from "../../components/common/Icons";
+import { IconDownload, IconPlus, IconSearch } from "../../components/common/Icons";
+import ModalFrame from "../../components/common/ModalFrame";
 import PageHeader from "../../components/common/PageHeader";
 import Panel from "../../components/common/Panel";
+import DocumentPreview from "../../components/official/DocumentPreview";
 import useDocuments from "../../hooks/useDocuments";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { getAIStatus } from "../../utils/aiStatus";
+import { downloadElementAsPdf } from "../../utils/pdfExport";
 import "./DocumentArchivePage.css";
 
 const nextPriority = {
@@ -37,6 +40,11 @@ export default function DocumentArchivePage() {
   const { documents } = useDocuments();
   const [activeTab, setActiveTab] = useState("my-documents");
   const [query, setQuery] = useState("");
+  const [selectedDocument, setSelectedDocument] = useState(null);
+  const [isSavingPdf, setIsSavingPdf] = useState(false);
+  const officialPreviewRef = useRef(null);
+  const snapshotFrameRef = useRef(null);
+  const textPreviewRef = useRef(null);
   const [priorities, setPriorities] = useLocalStorage("forestrick-document-priorities", {});
   const archiveDocuments = documents.length ? documents : previewDocuments;
 
@@ -73,6 +81,28 @@ export default function DocumentArchivePage() {
       return { ...currentPriorities, [documentId]: updatedPriority };
     });
   }
+
+  const handleSavePdf = async () => {
+    if (!selectedDocument || isSavingPdf) return;
+
+    const exportTarget =
+      selectedDocument.source === "official"
+        ? officialPreviewRef.current
+        : selectedDocument.snapshot?.format === "html"
+          ? snapshotFrameRef.current?.contentDocument?.body
+          : textPreviewRef.current;
+
+    try {
+      setIsSavingPdf(true);
+      await downloadElementAsPdf(exportTarget, {
+        fileName: selectedDocument.title,
+      });
+    } catch (error) {
+      console.error("PDF 저장 오류:", error);
+    } finally {
+      setIsSavingPdf(false);
+    }
+  };
 
   return (
     <section className="document-archive">
@@ -130,6 +160,7 @@ export default function DocumentArchivePage() {
                 document={document}
                 priority={priorities[document.id] ?? "none"}
                 onPriorityChange={() => handlePriorityChange(document.id)}
+                onOpen={() => setSelectedDocument(document)}
               />
             ))}
           </div>
@@ -143,6 +174,71 @@ export default function DocumentArchivePage() {
           </p>
         )}
       </Panel>
+
+      <ModalFrame
+        open={Boolean(selectedDocument)}
+        onClose={() => setSelectedDocument(null)}
+        closeIcon
+        width="large"
+        className="document-archive__detail-modal"
+      >
+        {selectedDocument && (
+          <article>
+            <header className="document-archive__detail-header">
+              <div>
+                <span>
+                  {selectedDocument.category ?? selectedDocument.type ?? "문서"}
+                </span>
+                <h2>{selectedDocument.title}</h2>
+                <p>
+                  최근 수정 · {selectedDocument.updatedAt ?? selectedDocument.createdAt ?? "정보 없음"}
+                </p>
+              </div>
+              <button
+                className="document-archive__pdf-button"
+                type="button"
+                disabled={isSavingPdf}
+                onClick={handleSavePdf}
+              >
+                <IconDownload size={16} />
+                {isSavingPdf ? "PDF 생성 중" : "PDF로 저장"}
+              </button>
+            </header>
+            {selectedDocument.source === "official" && selectedDocument.documentType ? (
+              <div className="document-archive__official-preview">
+                <DocumentPreview
+                  documentType={selectedDocument.documentType}
+                  fields={selectedDocument.fields ?? {}}
+                  body={selectedDocument.content}
+                  companyStyle={selectedDocument.companyStyle}
+                  companyName={selectedDocument.companyName}
+                  showDepartment={selectedDocument.showDepartment}
+                  showSignature={selectedDocument.showSignature}
+                  showStamp={selectedDocument.showStamp}
+                  stampImage={selectedDocument.stampImage}
+                  stampAtCenter={selectedDocument.stampAtCenter}
+                  stampAtName={selectedDocument.stampAtName}
+                  editing={false}
+                  previewTemplateId={selectedDocument.previewTemplateId}
+                  paperRef={officialPreviewRef}
+                />
+              </div>
+            ) : selectedDocument.snapshot?.format === "html" ? (
+              <iframe
+                className="document-archive__snapshot"
+                title={`${selectedDocument.title} 미리보기`}
+                ref={snapshotFrameRef}
+                sandbox="allow-same-origin"
+                srcDoc={selectedDocument.snapshot.html}
+              />
+            ) : (
+              <div ref={textPreviewRef} className="document-archive__detail-content">
+                {selectedDocument.content || "본문이 저장되지 않은 미리보기 문서입니다."}
+              </div>
+            )}
+          </article>
+        )}
+      </ModalFrame>
     </section>
   );
 }
