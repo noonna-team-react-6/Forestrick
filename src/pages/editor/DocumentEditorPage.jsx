@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAI } from "../../hooks/useAI";
 
 import Button from "../../components/common/Button";
 import ModalFrame from "../../components/common/ModalFrame";
 import Loading from "../../components/common/Loading";
+import PageHeader from "../../components/common/PageHeader";
+import Panel from "../../components/common/Panel";
+import { getAIStatus } from "../../utils/aiStatus";
 
 import {
   IconSparkles,
@@ -18,6 +21,8 @@ import "./DocumentEditorPage.css";
 
 import EditOptions from "./EditOptions";
 import EditHistory from "./EditHistory";
+
+import ProgressModal from "../../components/assistant/ProgressModal";
 
 function DocumentEditorPage() {
   const { generate, loading } = useAI(
@@ -34,6 +39,23 @@ function DocumentEditorPage() {
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [previousContent, setPreviousContent] = useState("");
+  const [isProgressOpen, setIsProgressOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [progressMessage, setProgressMessage] = useState("");
+  const aiStatus = getAIStatus();
+
+  useEffect(() => {
+    if (!isProgressOpen) return;
+
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 85) return prev;
+        return prev + 5;
+      });
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, [isProgressOpen]);
 
   const handleAction = async (action) => {
     setSelectedAction(action);
@@ -44,6 +66,11 @@ function DocumentEditorPage() {
       .find((option) => option.label === action);
 
     if (!selectedOption) return;
+
+    // ProgressModal 시작
+    setIsProgressOpen(true);
+    setProgress(0);
+    setProgressMessage("AI가 문서를 분석하고 있습니다.");
 
     const prompt = `
     당신은 전문적인 AI 문서 편집기입니다.
@@ -63,7 +90,11 @@ function DocumentEditorPage() {
     try {
       setResult("");
 
+      setProgressMessage("문서 내용을 바탕으로 최적의 표현을 찾고 있습니다.");
+
       const aiResult = await generate(prompt);
+
+      setProgressMessage("AI 편집 결과를 정리하고 있습니다.");
 
       setResult(aiResult);
 
@@ -79,8 +110,17 @@ function DocumentEditorPage() {
         },
         ...prev,
       ]);
+
+      setProgress(100);
+      setProgressMessage("편집이 완료되었습니다.");
     } catch (err) {
       console.error("AI 요청 실패:", err);
+    } finally {
+      setTimeout(() => {
+        setIsProgressOpen(false);
+        setProgress(0);
+        setProgressMessage("");
+      }, 500);
     }
   };
 
@@ -182,27 +222,17 @@ function DocumentEditorPage() {
   return (
     <div className="editor-page">
       {/* 페이지 제목 및 설명 */}
-      <section className="editor-page-header">
-        <div>
-          {/* 현재 페이지 위치 */}
-          <div className="editor-eyebrow">WORKSPACE &gt; AI 문서 편집기</div>
-
-          <h1>AI 문서 편집기</h1>
-
-          <p>비즈니스 문장을 더 정갈하고 자연스럽게 다듬어 보세요.</p>
-        </div>
-
-        {/* AI 사용 가능 상태 표시 */}
-        <div className="ai-status">
-          <span className="status-dot" />
-          AI 준비 완료
-        </div>
-      </section>
+      <PageHeader
+        title="AI 문서 편집기"
+        description="비즈니스 문장을 더 정갈하고 자연스럽게 다듬어 보세요."
+        breadcrumb="AI 문서 편집기"
+        status={aiStatus}
+      />
 
       {/* 원문과 AI 결과를 나란히 표시 */}
       <section className="editor-grid">
         {/* 원문 입력 영역 */}
-        <article className="editor-card">
+        <Panel class="editor-card">
           <div className="editor-card-header">
             <h2>원문</h2>
 
@@ -251,10 +281,10 @@ function DocumentEditorPage() {
               영어
             </Button>
           </div>
-        </article>
+        </Panel>
 
         {/* AI 편집 결과 영역 */}
-        <article className="editor-card">
+        <Panel className="editor-card">
           <div className="editor-card-header">
             <h2>AI 편집 결과</h2>
 
@@ -313,7 +343,7 @@ function DocumentEditorPage() {
               복사
             </Button>
           </div>
-        </article>
+        </Panel>
       </section>
 
       {/* 더 다양한 편집 옵션 */}
@@ -353,6 +383,11 @@ function DocumentEditorPage() {
           </div>
         </div>
       </ModalFrame>
+
+      {/* ⭐ ProgressModal 추가 */}
+      {isProgressOpen && (
+        <ProgressModal progress={progress} message={progressMessage} />
+      )}
     </div>
   );
 }
