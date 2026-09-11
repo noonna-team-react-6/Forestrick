@@ -1,0 +1,78 @@
+.ui-progress-modal__backdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(2 8 23 / 72%);
+  backdrop-filter: blur(3px);
+}
+
+.ui-progress-modal {
+  width: min(430px, 100%);
+  padding: 34px;
+  border: 1px solid #2a3a52;
+  border-radius: 18px;
+  background: #151d29;
+  box-shadow: 0 24px 64px rgb(0 0 0 / 45%);
+  color: #f8fafc;
+  text-align: center;
+}
+
+.ui-progress-modal__symbol {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 15px;
+  place-items: center;
+  border-radius: 12px;
+  background: #19345a;
+  color: #7eb5ff;
+  font-size: 24px;
+}
+
+.ui-progress-modal__kicker {
+  color: #7eb5ff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.ui-progress-modal h2 {
+  margin: 12px 0 0;
+  font-size: 22px;
+}
+
+.ui-progress-modal__message {
+  min-height: 22px;
+  margin: 9px 0 22px;
+  color: #91a1b9;
+  font-size: 13px;
+}
+
+.ui-progress-modal__track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #0b111b;
+}
+
+.ui-progress-modal__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #60a5fa, #2563eb);
+  transition: width 0.25s ease;
+}
+
+.ui-progress-modal__percent {
+  display: block;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.ui-progress-modal__caption {
+  margin: 7px 0 0;
+  color: #71819a;
+  font-size: 12px;
+}
