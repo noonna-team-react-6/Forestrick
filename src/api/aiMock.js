@@ -38,8 +38,73 @@ const createDocumentMock = () => {
   });
 };
 
+const ACTION_VERBS = [
+  "작성",
+  "제작",
+  "제출",
+  "발송",
+  "준비",
+  "검토",
+  "확인",
+  "완료",
+  "보고",
+  "공유",
+];
+
+const classifyDocumentMock = (text) => {
+  if (text.includes("회의")) return "회의록";
+  if (text.includes("안내드립니다") || text.includes("공문")) return "공문";
+  if (text.includes("보고")) return "보고서";
+  if (text.includes("안녕하세요") || text.includes("메일")) return "이메일";
+  return "기타";
+};
+
+const extractTasksMock = (text) => {
+  const pattern =
+    /([가-힣A-Za-z0-9]+)(?:은|는)\s*(.+?)(?:을|를)\s*(\d{1,2}월\s*\d{1,2}일)까지\s*([가-힣]+)/g;
+
+  const tasks = [];
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    const [, assignee, object, deadline, verbRaw] = match;
+    const verb =
+      ACTION_VERBS.find((candidate) => verbRaw.startsWith(candidate)) ??
+      verbRaw;
+
+    tasks.push({
+      assignee: assignee.trim(),
+      task: `${object.trim()} ${verb}`.trim(),
+      deadline: deadline.replace(/\s+/g, " "),
+    });
+  }
+
+  if (tasks.length === 0) {
+    return [{ assignee: "확인 필요", task: "확인 필요", deadline: "확인 필요" }];
+  }
+
+  return tasks;
+};
+
+const createAnalysisDocumentMock = (text) => {
+  return JSON.stringify({
+    classification: classifyDocumentMock(text),
+    summary: text.length > 60 ? `${text.slice(0, 60)}...` : text,
+    tasks: extractTasksMock(text),
+  });
+};
+
 export const generateMockAI = async (prompt) => {
   await wait(MOCK_DELAY);
+
+  if (prompt.includes("[TASK:ANALYZE_DOCUMENT]")) {
+    await wait(1000);
+
+    const [, documentText = ""] =
+      prompt.match(/\[문서 내용\]\n([\s\S]*?)\n\n다음 조건/) ?? [];
+
+    return createAnalysisDocumentMock(documentText.trim());
+  }
 
   if (prompt.includes("[TASK:ANALYZE]")) {
     return createAnalysisMock();
