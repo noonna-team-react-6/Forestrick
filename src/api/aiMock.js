@@ -106,6 +106,19 @@ export const generateMockAI = async (prompt) => {
     return createAnalysisDocumentMock(documentText.trim());
   }
 
+  if (prompt.includes("[TASK:ANALYZE_DOCUMENT_FILE]")) {
+    await wait(1000);
+
+    return JSON.stringify({
+      classification: "기타",
+      summary:
+        "모의(Mock) 모드에서는 첨부 파일 내용을 직접 읽을 수 없어 예시 응답을 보여드립니다. 실제 분석을 확인하려면 .env에서 VITE_USE_MOCK_AI=false로 설정해 주세요.",
+      tasks: [
+        { assignee: "확인 필요", task: "확인 필요", deadline: "확인 필요" },
+      ],
+    });
+  }
+
   if (prompt.includes("[TASK:ANALYZE]")) {
     return createAnalysisMock();
   }

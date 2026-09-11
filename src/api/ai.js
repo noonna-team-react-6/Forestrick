@@ -13,16 +13,28 @@ const PROVIDERS = {
       messages: [{ role: "user", content: prompt }],
     }),
     parse: (data) => data.choices[0].message.content,
+    // OpenAI 채팅 완성 API는 PDF 등 문서 파일을 직접 첨부해서 읽을 수 없음
+    supportsFile: false,
   },
   gemini: {
     url: (apiKey) =>
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
     apiKey: import.meta.env.VITE_GEMINI_API_KEY,
     headers: () => ({}),
-    body: (prompt) => ({
-      contents: [{ parts: [{ text: prompt }] }],
+    body: (prompt, file) => ({
+      contents: [
+        {
+          parts: file
+            ? [
+                { inlineData: { mimeType: file.mimeType, data: file.base64 } },
+                { text: prompt },
+              ]
+            : [{ text: prompt }],
+        },
+      ],
     }),
     parse: (data) => data.candidates[0].content.parts[0].text,
+    supportsFile: true,
   },
   claude: {
     url: "https://api.anthropic.com/v1/messages",
@@ -33,16 +45,36 @@ const PROVIDERS = {
       "anthropic-version": "2023-06-01",
       "anthropic-dangerous-direct-browser-access": "true",
     }),
-    body: (prompt) => ({
+    body: (prompt, file) => ({
       model: "claude-sonnet-5",
       max_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        {
+          role: "user",
+          content: file
+            ? [
+                {
+                  type: "document",
+                  source: {
+                    type: "base64",
+                    media_type: file.mimeType,
+                    data: file.base64,
+                  },
+                },
+                { type: "text", text: prompt },
+              ]
+            : prompt,
+        },
+      ],
     }),
-    parse: (data) => data.content[0].text,
+    // claude-sonnet-5는 복잡한 요청에서 thinking 블록을 text 블록보다 먼저 반환할 수 있어
+    // 인덱스로 고정하지 않고 type이 "text"인 블록을 찾아야 함
+    parse: (data) => data.content.find((block) => block.type === "text")?.text,
+    supportsFile: true,
   },
 };
 
-export async function generateAI(provider, prompt, { signal } = {}) {
+export async function generateAI(provider, prompt, { signal, file } = {}) {
   const config = PROVIDERS[provider];
 
   if (!config) {
@@ -55,6 +87,12 @@ export async function generateAI(provider, prompt, { signal } = {}) {
     );
   }
 
+  if (file && !config.supportsFile) {
+    throw new Error(
+      `${provider}는 문서 파일 첨부를 지원하지 않습니다. Claude 또는 Gemini를 선택해 주세요.`,
+    );
+  }
+
   const url =
     typeof config.url === "function" ? config.url(config.apiKey) : config.url;
 
@@ -62,7 +100,7 @@ export async function generateAI(provider, prompt, { signal } = {}) {
     provider,
     (harnessSignal) =>
       axios
-        .post(url, config.body(prompt), {
+        .post(url, config.body(prompt, file), {
           headers: {
             "Content-Type": "application/json",
             ...config.headers(config.apiKey),

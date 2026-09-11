@@ -138,6 +138,20 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
+.analysis-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.analysis-attached-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--analysis-blue-soft);
+  color: var(--analysis-blue);
+  font-size: 13px;
+}
+
 .analysis-analyze-button {
   display: inline-flex;
   align-items: center;

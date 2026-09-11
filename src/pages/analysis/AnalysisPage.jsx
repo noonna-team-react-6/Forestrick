@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import mammoth from "mammoth";
 
 import { useAI } from "../../hooks/useAI";
-import { createAnalysisDocumentPrompt } from "../../utils/analysisPrompts";
+import {
+  createAnalysisDocumentPrompt,
+  createAnalysisDocumentAttachmentPrompt,
+} from "../../utils/analysisPrompts";
 import { parseAIJson } from "../../utils/aiResponseUtils";
 import ProgressModal from "../../components/common/ProgressModal";
 import { IconUpload } from "../../components/common/Icons";
@@ -9,8 +13,12 @@ import { IconUpload } from "../../components/common/Icons";
 import "./AnalysisPage.css";
 
 const DEFAULT_AI_PROVIDER = "openai";
+// PDF는 Claude/Gemini만 문서를 직접 읽을 수 있어 첨부 시에는 provider를 고정
+const FILE_ATTACHMENT_PROVIDER = "claude";
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
-const ACCEPTED_EXTENSIONS = [".txt", ".md"];
+const TEXT_EXTENSIONS = [".txt", ".md"];
+const PDF_MIME_TYPE = "application/pdf";
+const ACCEPTED_EXTENSIONS = [...TEXT_EXTENSIONS, ".pdf", ".docx"];
 const MAX_PROGRESS = 92;
 const COMPLETE_PROGRESS = 100;
 const PROGRESS_INTERVAL = 280;
@@ -25,6 +33,19 @@ const hasAcceptedExtension = (fileName) =>
   ACCEPTED_EXTENSIONS.some((extension) =>
     fileName.toLowerCase().endsWith(extension)
   );
+
+const isTextFile = (fileName) =>
+  TEXT_EXTENSIONS.some((extension) => fileName.toLowerCase().endsWith(extension));
+
+const isPdfFile = (fileName) => fileName.toLowerCase().endsWith(".pdf");
+
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
 
 const normalizeResult = (data) => {
   const tasks =
@@ -50,11 +71,14 @@ export default function AnalysisPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState(null);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [isReadingFile, setIsReadingFile] = useState(false);
 
   const fileInputRef = useRef(null);
   const progressTimerRef = useRef(null);
 
-  const { generate, loading, error } = useAI(DEFAULT_AI_PROVIDER);
+  const provider = attachedFile ? FILE_ATTACHMENT_PROVIDER : DEFAULT_AI_PROVIDER;
+  const { generate, loading, error } = useAI(provider);
 
   useEffect(() => {
     return () => {
@@ -78,10 +102,10 @@ export default function AnalysisPage() {
 
   const isAnalyzing = loading || progress > 0;
 
-  const readFile = (file) => {
+  const readFile = async (file) => {
     if (!hasAcceptedExtension(file.name)) {
       setFileError(
-        "지금은 텍스트(.txt, .md) 파일만 지원합니다. 다른 형식이라면 내용을 복사해서 붙여넣어 주세요."
+        "지금은 .txt, .md, .pdf, .docx 파일만 지원합니다. 다른 형식이라면 내용을 복사해서 붙여넣어 주세요."
       );
       return;
     }
@@ -91,19 +115,45 @@ export default function AnalysisPage() {
       return;
     }
 
-    const reader = new FileReader();
+    setFileError("");
+    setIsReadingFile(true);
 
-    reader.onload = () => {
-      setFileError("");
+    try {
+      if (isTextFile(file.name)) {
+        const content = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ""));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsText(file);
+        });
+
+        setAttachedFile(null);
+        setText(content);
+      } else if (isPdfFile(file.name)) {
+        const dataUrl = await readFileAsDataUrl(file);
+        const base64 = dataUrl.split(",")[1] || "";
+
+        setText("");
+        setAttachedFile({ base64, mimeType: PDF_MIME_TYPE, name: file.name });
+      } else {
+        const arrayBuffer = await file.arrayBuffer();
+        const { value } = await mammoth.extractRawText({ arrayBuffer });
+
+        setAttachedFile(null);
+        setText(value.trim());
+      }
+
       setFileName(file.name);
-      setText(String(reader.result || ""));
-    };
-
-    reader.onerror = () => {
-      setFileError("파일을 읽는 중 오류가 발생했습니다.");
-    };
-
-    reader.readAsText(file);
+    } catch (readError) {
+      console.error("파일 읽기 오류:", readError);
+      setFileError(
+        isPdfFile(file.name)
+          ? "PDF 파일을 읽는 중 오류가 발생했습니다."
+          : "올바른 문서 파일인지 확인해 주세요."
+      );
+    } finally {
+      setIsReadingFile(false);
+    }
   };
 
   const handleBrowseClick = () => {
@@ -114,7 +164,7 @@ export default function AnalysisPage() {
     const file = event.target.files?.[0];
 
     if (file) {
-      readFile(file);
+      void readFile(file);
     }
 
     event.target.value = "";
@@ -127,7 +177,7 @@ export default function AnalysisPage() {
     const file = event.dataTransfer.files?.[0];
 
     if (file) {
-      readFile(file);
+      void readFile(file);
     }
   };
 
@@ -143,7 +193,7 @@ export default function AnalysisPage() {
   const handleAnalyze = async () => {
     const documentText = text.trim();
 
-    if (!documentText) {
+    if (!documentText && !attachedFile) {
       return;
     }
 
@@ -164,9 +214,17 @@ export default function AnalysisPage() {
     }, PROGRESS_INTERVAL);
 
     try {
-      const response = await generate(
-        createAnalysisDocumentPrompt(documentText)
-      );
+      const response = attachedFile
+        ? await generate(
+            createAnalysisDocumentAttachmentPrompt(attachedFile.name),
+            {
+              file: {
+                base64: attachedFile.base64,
+                mimeType: attachedFile.mimeType,
+              },
+            }
+          )
+        : await generate(createAnalysisDocumentPrompt(documentText));
       const parsedResponse = parseAIJson(response);
 
       window.clearInterval(progressTimerRef.current);
@@ -227,27 +285,36 @@ export default function AnalysisPage() {
 
           {fileName ? (
             <p>
-              <strong>{fileName}</strong> 업로드됨
+              <strong>{fileName}</strong>{" "}
+              {isReadingFile ? "읽는 중..." : "업로드됨"}
             </p>
           ) : (
             <p>파일을 드래그하거나 클릭해서 업로드하세요</p>
           )}
 
           <span className="analysis-upload-caption">
-            회의록, 이메일, 공문, 보고서 · 최대 20MB (.txt, .md)
+            회의록, 이메일, 공문, 보고서 · 최대 20MB (.txt, .md, .pdf, .docx)
           </span>
         </div>
 
         {fileError && <div className="analysis-inline-error">{fileError}</div>}
+
+        {attachedFile && (
+          <div className="analysis-attached-note">
+            PDF는 미리보기 없이 AI가 파일을 직접 읽어서 분석합니다.
+          </div>
+        )}
 
         <div className="analysis-paste-label">또는 문서 내용을 붙여넣기</div>
 
         <textarea
           className="analysis-textarea"
           value={text}
+          disabled={Boolean(attachedFile)}
           onChange={(event) => {
             setText(event.target.value);
             setFileName("");
+            setAttachedFile(null);
           }}
           placeholder="마케팅팀은 신제품 홍보자료를 9월 15일까지 작성하고, 개발팀은 홈페이지 배너를 9월 12일까지 제작한다."
         />
@@ -255,7 +322,7 @@ export default function AnalysisPage() {
         <button
           className="analysis-analyze-button"
           type="button"
-          disabled={!text.trim() || loading}
+          disabled={(!text.trim() && !attachedFile) || loading}
           onClick={handleAnalyze}
         >
           <span>✦</span>

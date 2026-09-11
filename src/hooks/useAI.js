@@ -10,7 +10,7 @@ export function useAI(provider = "openai") {
   const controllerRef = useRef(null);
 
   const generate = useCallback(
-    async (prompt) => {
+    async (prompt, { file } = {}) => {
       controllerRef.current?.abort();
       const controller = new AbortController();
       controllerRef.current = controller;
@@ -25,6 +25,7 @@ export function useAI(provider = "openai") {
 
         return await generateAI(provider, prompt, {
           signal: controller.signal,
+          file,
         });
       } catch (err) {
         if (err.harness?.kind !== "cancelled") {
