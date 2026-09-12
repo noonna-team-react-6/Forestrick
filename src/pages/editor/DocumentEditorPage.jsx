@@ -46,6 +46,7 @@ function DocumentEditorPage() {
     if (!selectedOption) return;
 
     const prompt = `
+    [TASK:EDIT_TEXT]
     당신은 전문적인 AI 문서 편집기입니다.
 
     사용자가 입력한 문장의 의미와 핵심 정보는 유지해야 합니다.
@@ -141,6 +142,7 @@ function DocumentEditorPage() {
     setResult("");
 
     const prompt = `
+    [TASK:EDIT_TEXT]
     당신은 전문적인 AI 문서 편집기입니다.
 
     사용자가 입력한 문서의 핵심 정보와 의미는 최대한 유지해야 합니다.
