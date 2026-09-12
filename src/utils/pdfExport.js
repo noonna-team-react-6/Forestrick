@@ -3,7 +3,10 @@ function sanitizeFileName(fileName) {
 }
 
 /** 화면 요소를 A4 PDF 파일로 내려받는다. */
-export async function downloadElementAsPdf(element, { fileName = "문서" } = {}) {
+export async function downloadElementAsPdf(
+  element,
+  { fileName = "문서" } = {},
+) {
   if (!element) {
     throw new Error("PDF로 저장할 문서를 찾을 수 없습니다.");
   }

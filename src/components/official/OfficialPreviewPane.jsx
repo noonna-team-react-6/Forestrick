@@ -1,21 +1,104 @@
 import { useRef, useState } from "react";
 import Button from "../common/Button";
-import {
-  IconCopy,
-  IconDownload,
-  IconPencil,
-  IconPrint,
-} from "../common/Icons";
+import { IconCopy, IconDownload, IconPencil, IconPrint } from "../common/Icons";
 import Panel from "../common/Panel";
 import { findType, isCardType, PREVIEW_TEMPLATES } from "../../data/official";
+import { downloadElementAsPdf } from "../../utils/pdfExport";
 import DocumentPreview from "./DocumentPreview";
 import { ToneButtons } from "./DocumentTone";
-import {
-  downloadPreviewPdf,
-  getPreviewText,
-  printPreviewPaper,
-} from "../../utils/previewExport";
 import "../../styles/official/OfficialPreviewPane.css";
+
+function getPreviewText(paper) {
+  if (!paper) return "";
+
+  const clone = paper.cloneNode(true);
+  clone.querySelectorAll("input, textarea").forEach((el) => {
+    el.replaceWith(document.createTextNode(el.value || ""));
+  });
+  clone.querySelectorAll('[aria-hidden="true"]').forEach((el) => el.remove());
+
+  return clone.innerText
+    .replace(/\u00a0/g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function createA4ExportFrame(paper) {
+  const frame = document.createElement("div");
+  frame.setAttribute("data-official-pdf-frame", "");
+  frame.style.cssText = [
+    "position:fixed",
+    "left:-10000px",
+    "top:0",
+    "width:210mm",
+    "height:297mm",
+    "box-sizing:border-box",
+    "display:flex",
+    "align-items:center",
+    "justify-content:center",
+    "background:#ffffff",
+    "overflow:hidden",
+  ].join(";");
+
+  const clone = paper.cloneNode(true);
+  clone.style.boxShadow = "none";
+  clone.style.maxWidth = "210mm";
+  clone.style.maxHeight = "297mm";
+  clone.querySelectorAll("input, textarea").forEach((el) => {
+    el.replaceWith(document.createTextNode(el.value || ""));
+  });
+  clone.querySelectorAll("[contenteditable]").forEach((el) => {
+    el.removeAttribute("contenteditable");
+  });
+
+  frame.appendChild(clone);
+  document.body.appendChild(frame);
+  return frame;
+}
+
+async function printPreviewPaper(paper, title) {
+  const printWindow = window.open("", "_blank", "width=900,height=800");
+  if (!printWindow) {
+    throw new Error("팝업이 차단되어 인쇄할 수 없습니다.");
+  }
+
+  const clone = paper.cloneNode(true);
+  clone.querySelectorAll("input, textarea").forEach((el) => {
+    el.replaceWith(document.createTextNode(el.value || ""));
+  });
+  clone.querySelectorAll("[contenteditable]").forEach((el) => {
+    el.removeAttribute("contenteditable");
+  });
+
+  const styles = [...document.querySelectorAll("style, link[rel='stylesheet']")]
+    .map((node) => node.outerHTML)
+    .join("\n");
+  const safeTitle = String(title)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+  printWindow.document.write(`<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>${safeTitle}</title>
+    ${styles}
+    <style>
+      html, body { margin: 0; background: #fff; }
+      body { display: flex; justify-content: center; padding: 16px; }
+      .preview-paper { box-shadow: none !important; }
+    </style>
+  </head>
+  <body>${clone.outerHTML}</body>
+</html>`);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.onafterprint = () => printWindow.close();
+  printWindow.print();
+}
 
 export default function OfficialPreviewPane({
   editing,
@@ -49,9 +132,10 @@ export default function OfficialPreviewPane({
   const [exporting, setExporting] = useState(false);
   const thumbKind = isCardType(documentType) ? documentType : "";
   const fileTitle = findType(documentType).title;
-  const designOptions = (recommendedDesigns?.length
-    ? recommendedDesigns
-    : PREVIEW_TEMPLATES.map((item) => item.id)
+  const designOptions = (
+    recommendedDesigns?.length
+      ? recommendedDesigns
+      : PREVIEW_TEMPLATES.map((item) => item.id)
   )
     .map((id) => PREVIEW_TEMPLATES.find((item) => item.id === id))
     .filter(Boolean);
@@ -71,9 +155,15 @@ export default function OfficialPreviewPane({
   };
 
   const handlePrint = async () => {
+    const paper = paperRef.current;
+    if (!paper) {
+      onExportError?.("미리보기가 없습니다.");
+      return;
+    }
+
     setExporting(true);
     try {
-      await printPreviewPaper(paperRef.current, { title: fileTitle });
+      await printPreviewPaper(paper, fileTitle);
     } catch (err) {
       onExportError?.(err?.message || "인쇄에 실패했습니다.");
     } finally {
@@ -82,13 +172,21 @@ export default function OfficialPreviewPane({
   };
 
   const handlePdf = async () => {
+    const paper = paperRef.current;
+    if (!paper) {
+      onExportError?.("미리보기가 없습니다.");
+      return;
+    }
+
     setExporting(true);
+    const frame = createA4ExportFrame(paper);
     try {
-      await downloadPreviewPdf(paperRef.current, { title: fileTitle });
+      await downloadElementAsPdf(frame, { fileName: fileTitle });
       onCopySuccess?.("PDF를 저장했습니다.");
     } catch (err) {
       onExportError?.(err?.message || "PDF 저장에 실패했습니다.");
     } finally {
+      frame.remove();
       setExporting(false);
     }
   };
