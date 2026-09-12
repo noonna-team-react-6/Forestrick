@@ -3,13 +3,18 @@ import mammoth from "mammoth";
 
 import { useAI } from "../../hooks/useAI";
 import { useProgressSimulation } from "../../hooks/useProgressSimulation";
+import useDocuments from "../../hooks/useDocuments";
 import {
   createAnalysisDocumentPrompt,
   createAnalysisDocumentAttachmentPrompt,
 } from "../../utils/analysisPrompts";
 import { parseAIJson } from "../../utils/aiResponseUtils";
 import ProgressModal from "../../components/common/ProgressModal";
-import { IconUpload } from "../../components/common/Icons";
+import Toast, { Error as ErrorToast } from "../../components/common/Toast";
+import Button from "../../components/common/Button";
+import PageHeader from "../../components/common/PageHeader";
+import { IconUpload, IconDownload } from "../../components/common/Icons";
+import { getAIStatus } from "../../utils/aiStatus";
 
 import "./AnalysisPage.css";
 
@@ -61,6 +66,27 @@ const normalizeResult = (data) => {
   };
 };
 
+const formatAnalysisAsText = (result) => {
+  const lines = [
+    `문서 분류: ${result.classification}`,
+    "",
+    "핵심 요약",
+    result.summary,
+    "",
+    "추출된 업무",
+  ];
+
+  if (result.tasks.length > 0) {
+    result.tasks.forEach((task) => {
+      lines.push(`- ${task.assignee} · ${task.task} · ${task.deadline}`);
+    });
+  } else {
+    lines.push("이 문서에서는 추출할 업무가 없어요.");
+  }
+
+  return lines.join("\n");
+};
+
 export default function AnalysisPage() {
   const [text, setText] = useState("");
   const [fileName, setFileName] = useState("");
@@ -69,11 +95,17 @@ export default function AnalysisPage() {
   const [result, setResult] = useState(null);
   const [attachedFile, setAttachedFile] = useState(null);
   const [isReadingFile, setIsReadingFile] = useState(false);
+  const [toast, setToast] = useState(null);
 
   const fileInputRef = useRef(null);
+  const savedDocumentIdRef = useRef(null);
+  const savedSnapshotRef = useRef(null);
 
   const provider = attachedFile ? FILE_ATTACHMENT_PROVIDER : undefined;
   const { generate, loading, error } = useAI(provider);
+  const { addDocument, updateDocument } = useDocuments();
+
+  const closeToast = () => setToast(null);
 
   const {
     progress,
@@ -181,6 +213,8 @@ export default function AnalysisPage() {
     }
 
     setResult(null);
+    savedDocumentIdRef.current = null;
+    savedSnapshotRef.current = null;
     startProgress();
 
     try {
@@ -207,24 +241,52 @@ export default function AnalysisPage() {
     }
   };
 
+  const handleSave = () => {
+    if (!result) {
+      return;
+    }
+
+    const payload = {
+      title: fileName ? fileName.replace(/\.[^.]+$/, "") : "문서 분석 결과",
+      category: result.classification,
+      source: "analysis",
+      content: formatAnalysisAsText(result),
+      classification: result.classification,
+      summary: result.summary,
+      tasks: result.tasks,
+    };
+    const snapshot = JSON.stringify(payload);
+
+    try {
+      if (savedDocumentIdRef.current) {
+        if (savedSnapshotRef.current === snapshot) {
+          setToast({ kind: "default", message: "이미 저장된 문서입니다." });
+          return;
+        }
+
+        updateDocument(savedDocumentIdRef.current, payload);
+        savedSnapshotRef.current = snapshot;
+        setToast({ kind: "success", message: "분석 결과를 다시 저장했습니다." });
+        return;
+      }
+
+      const saved = addDocument(payload);
+      savedDocumentIdRef.current = saved.id;
+      savedSnapshotRef.current = snapshot;
+      setToast({ kind: "success", message: "문서 보관함에 저장했습니다." });
+    } catch {
+      setToast({ kind: "error", message: "저장에 실패했습니다." });
+    }
+  };
+
   return (
     <main className="analysis-page">
-      <div className="analysis-heading">
-        <div>
-          <div className="analysis-breadcrumb">
-            WORKSPACE <span>›</span> 문서 분석기
-          </div>
-
-          <h1>문서 분석기</h1>
-
-          <p>문서 속 담당자·업무·마감일을 찾아 Task로 연결해요.</p>
-        </div>
-
-        <span className="analysis-ready-badge">
-          <i />
-          AI 준비 완료
-        </span>
-      </div>
+      <PageHeader
+        breadcrumb="문서 분석기"
+        title="문서 분석기"
+        description="문서 속 담당자·업무·마감일을 찾아 Task로 연결해요."
+        status={loading ? "loading" : getAIStatus()}
+      />
 
       <section className="analysis-card">
         <div
@@ -346,11 +408,31 @@ export default function AnalysisPage() {
         </article>
       </section>
 
+      {result && (
+        <div className="analysis-save-row">
+          <Button variant="primary" size="sm" onClick={handleSave}>
+            <IconDownload size={16} />
+            문서 보관함에 저장
+          </Button>
+        </div>
+      )}
+
       {isAnalyzing && (
         <ProgressModal
           progress={progress}
           message={progressMessage}
           title="AI가 문서를 분석하고 있습니다."
+        />
+      )}
+
+      {toast?.kind === "error" ? (
+        <ErrorToast open message={toast.message} onClose={closeToast} />
+      ) : (
+        <Toast
+          open={Boolean(toast)}
+          type={toast?.kind === "success" ? "success" : "default"}
+          message={toast?.message}
+          onClose={closeToast}
         />
       )}
     </main>
