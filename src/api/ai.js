@@ -75,7 +75,26 @@ const PROVIDERS = {
   },
 };
 
-export async function generateAI(provider, prompt, { signal, file } = {}) {
+const MAX_PROMPT_LENGTH = 100000;
+
+// 실키가 있는 provider가 순서대로 바뀌어도 그대로 동작하도록, 우선순위만 고정
+const FALLBACK_ORDER = ["openai", "gemini", "claude"];
+
+// 이 provider에서 난 실패가 "이 provider 자체의 문제"로 보이면 다른 provider로 넘어가 봄.
+// cancelled(사용자가 새 요청을 보냄)만 예외로 두고 전부 폴백 대상으로 허용 —
+// bad_request도 모델명 오타처럼 provider별 설정 문제일 수 있어 다른 provider는 성공할 수 있음.
+const FALLBACK_ELIGIBLE_KINDS = new Set([
+  "no_key",
+  "unsupported",
+  "auth",
+  "network",
+  "rate_limit",
+  "provider_error",
+  "timeout",
+  "bad_request",
+]);
+
+async function generateWithProvider(provider, prompt, { signal, file } = {}) {
   const config = PROVIDERS[provider];
 
   if (!config) {
@@ -83,21 +102,23 @@ export async function generateAI(provider, prompt, { signal, file } = {}) {
   }
 
   if (!config.apiKey) {
-    throw new Error(
-      `${provider} API 키가 설정되지 않았습니다. .env 파일을 확인하세요.`,
+    throw Object.assign(
+      new Error(`${provider} API 키가 설정되지 않았습니다. .env 파일을 확인하세요.`),
+      { harness: { provider, kind: "no_key", attempt: 0, latencyMs: 0 } },
     );
   }
 
   if (file && !config.supportsFile) {
-    throw new Error(
-      `${provider}는 문서 파일 첨부를 지원하지 않습니다. Claude 또는 Gemini를 선택해 주세요.`,
+    throw Object.assign(
+      new Error(`${provider}는 문서 파일 첨부를 지원하지 않습니다.`),
+      { harness: { provider, kind: "unsupported", attempt: 0, latencyMs: 0 } },
     );
   }
 
   const url =
     typeof config.url === "function" ? config.url(config.apiKey) : config.url;
 
-  const data = await withHarness(
+  const { data, meta } = await withHarness(
     provider,
     (harnessSignal) =>
       axios
@@ -112,5 +133,56 @@ export async function generateAI(provider, prompt, { signal, file } = {}) {
     { signal },
   );
 
-  return config.parse(data);
+  return { text: config.parse(data), meta };
+}
+
+export async function generateAI(
+  provider,
+  prompt,
+  { signal, file, fallback = true } = {},
+) {
+  if (!file && !prompt?.trim()) {
+    throw new Error("AI에게 보낼 내용이 없습니다.");
+  }
+
+  if (prompt && prompt.length > MAX_PROMPT_LENGTH) {
+    throw new Error(
+      `입력이 너무 길어요. 최대 ${MAX_PROMPT_LENGTH.toLocaleString()}자까지 가능합니다.`,
+    );
+  }
+
+  const candidates = fallback
+    ? [provider, ...FALLBACK_ORDER.filter((candidate) => candidate !== provider)]
+    : [provider];
+
+  let lastError;
+
+  for (const candidate of candidates) {
+    const config = PROVIDERS[candidate];
+
+    // 폴백으로 넘어온 candidate가 첨부 파일을 못 다루면 시도할 필요도 없이 건너뜀
+    if (file && config && !config.supportsFile) {
+      continue;
+    }
+
+    try {
+      return await generateWithProvider(candidate, prompt, { signal, file });
+    } catch (err) {
+      lastError = err;
+
+      const kind = err.harness?.kind;
+
+      // 사용자가 새 요청을 보내 취소된 경우엔 다른 provider로 넘어가지 않고 바로 중단
+      if (kind === "cancelled") {
+        throw err;
+      }
+
+      if (!FALLBACK_ELIGIBLE_KINDS.has(kind)) {
+        throw err;
+      }
+      // 그 외에는 다음 candidate로 계속
+    }
+  }
+
+  throw lastError;
 }

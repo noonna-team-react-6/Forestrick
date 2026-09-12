@@ -49,7 +49,10 @@ export async function withHarness(
       const data = await requestFn(controller.signal);
       clearTimeout(timer);
       externalSignal?.removeEventListener("abort", onExternalAbort);
-      return data;
+      return {
+        data,
+        meta: { provider, attempt, latencyMs: performance.now() - startedAt },
+      };
     } catch (err) {
       clearTimeout(timer);
       externalSignal?.removeEventListener("abort", onExternalAbort);
