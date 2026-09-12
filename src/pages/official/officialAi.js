@@ -84,6 +84,7 @@ export function buildExtractPrompt({
   showSignature,
 }) {
   return [
+    "[TASK:OFFICIAL_DOCUMENT]",
     "당신은 한국어 공문 작성 도우미입니다.",
     "아래 사용자 요청에서 문서 정보를 추출하고 본문을 작성하세요.",
     "반드시 JSON만 출력하세요. 설명, 마크다운, 코드펜스는 넣지 마세요.",
@@ -152,6 +153,7 @@ export function inferTypeFromPrompt(prompt, category) {
 
 export function buildRegisterPrompt({ prompt, showSignature }) {
   return [
+    "[TASK:OFFICIAL_DOCUMENT]",
     "당신은 한국어 공문 정보 추출기입니다.",
     "사용자 요청에서 문서 종류와 폼 필드를 추출하고, 그 정보로 공문 본문도 작성하세요.",
     "반드시 JSON만 출력하세요. 설명, 마크다운, 코드펜스는 넣지 마세요.",
@@ -192,6 +194,7 @@ export function buildProofreadPrompt(body, documentType) {
   const isObituary = documentType === "obituary";
   const isThanks = documentType === "thanks";
   return [
+    "[TASK:OFFICIAL_PROOFREAD]",
     isWedding
       ? "다음 청첩 문구의 맞춤법, 띄어쓰기, 문법을 검사하고 자연스럽게 고치세요."
       : isObituary
@@ -219,6 +222,7 @@ export function buildRewritePrompt({ body, tone, documentType }) {
   const isObituary = documentType === "obituary";
   const isThanks = documentType === "thanks";
   return [
+    "[TASK:OFFICIAL_REWRITE]",
     isWedding
       ? "다음 청첩 문구의 의미는 유지하고 문체만 바꾸세요. 초대장의 온기를 지키세요."
       : isObituary

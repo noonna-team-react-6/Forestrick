@@ -90,8 +90,69 @@ const createAnalysisDocumentMock = (text) => {
   });
 };
 
+const MOCK_DISCLAIMER =
+  "(모의 모드에서는 실제로 다듬어지지 않습니다. 실제 결과를 보려면 .env에서 VITE_USE_MOCK_AI=false로 설정해 주세요.)";
+
+const createEditTextMock = (prompt) => {
+  const [, originalContent = ""] =
+    prompt.match(/원문:\s*\n\s*([\s\S]*?)\n\s*\n/) ?? [];
+
+  return `${originalContent.trim()}\n\n${MOCK_DISCLAIMER}`;
+};
+
+const OFFICIAL_TYPE_HINTS = [
+  { id: "obituary", pattern: /별세|부고|발인|빈소|고인/ },
+  { id: "wedding", pattern: /결혼|청첩|예식|신랑|신부/ },
+  { id: "consolation", pattern: /위문|병가|쾌유/ },
+  { id: "thanks", pattern: /감사/ },
+  { id: "schedule", pattern: /일정\s*변경|일정변경/ },
+  { id: "event", pattern: /행사|공유회/ },
+  { id: "request", pattern: /요청|제출|기한/ },
+  { id: "meeting", pattern: /회의/ },
+  { id: "alert", pattern: /알림/ },
+];
+
+const guessOfficialType = (text) =>
+  OFFICIAL_TYPE_HINTS.find((rule) => rule.pattern.test(text))?.id ?? "notice";
+
+const createOfficialDocumentMock = (prompt) => {
+  const [, userRequest = ""] = prompt.match(/사용자 요청:\n([\s\S]*)$/) ?? [];
+  const trimmedRequest = userRequest.trim();
+  const documentType = guessOfficialType(trimmedRequest);
+
+  return JSON.stringify({
+    documentType,
+    fields: { extra: trimmedRequest },
+    body: `${trimmedRequest}\n\n${MOCK_DISCLAIMER}`,
+    previewTemplateId: "classic",
+    recommendedDesigns: ["classic", "modern", "minimal"],
+  });
+};
+
+const createOfficialBodyMock = (prompt) => {
+  const [, body = ""] = prompt.match(/본문:\n([\s\S]*)$/) ?? [];
+
+  return JSON.stringify({ body: `${body.trim()}\n\n${MOCK_DISCLAIMER}` });
+};
+
 export const generateMockAI = async (prompt) => {
   await wait(MOCK_DELAY);
+
+  if (prompt.includes("[TASK:EDIT_TEXT]")) {
+    return createEditTextMock(prompt);
+  }
+
+  if (prompt.includes("[TASK:OFFICIAL_DOCUMENT]")) {
+    await wait(900);
+    return createOfficialDocumentMock(prompt);
+  }
+
+  if (
+    prompt.includes("[TASK:OFFICIAL_PROOFREAD]") ||
+    prompt.includes("[TASK:OFFICIAL_REWRITE]")
+  ) {
+    return createOfficialBodyMock(prompt);
+  }
 
   if (prompt.includes("[TASK:ANALYZE_DOCUMENT]")) {
     await wait(1000);
