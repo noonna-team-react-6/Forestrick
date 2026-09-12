@@ -35,10 +35,33 @@
 .login-button,
 .logout-button {
   border: 0;
-  background: transparent;
   color: inherit;
   cursor: pointer;
   font: inherit;
+}
+
+.login-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
+  border: 1px solid #315a8e;
+  border-radius: 10px;
+  background: #142945;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+  color: #dbeafe;
+  font-size: 13px;
+  font-weight: 700;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.login-button:hover,
+.login-button:focus-visible {
+  border-color: #60a5fa;
+  background: #1d3d67;
+  color: #fff;
+  outline: 0;
 }
 
 .logged-in-actions {
@@ -92,6 +115,10 @@
   flex: 1;
   max-width: none;
   margin: 0;
+}
+
+.nav-search-toggle {
+  display: none;
 }
 
 .nav-search input {
@@ -302,16 +329,54 @@
     display: none;
   }
 
-  .login-button {
-    min-width: 36px;
+  .navbar.is-search-open .nav-search {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 12px;
+    left: 12px;
+    z-index: 4;
+    display: block;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid var(--layout-border);
+    border-radius: 12px;
+    background: #111926;
+    box-shadow: 0 14px 30px rgb(0 0 0 / 35%);
+  }
+
+  .navbar.is-search-open .nav-search input {
+    padding: 11px 13px;
+  }
+
+  .nav-search-toggle {
+    display: grid;
+    width: 36px;
     height: 36px;
-    padding: 0 8px;
-    border: 1px solid #2b5ea5;
-    border-radius: 18px;
-    background: #19345a;
-    color: #cfe3ff;
+    place-items: center;
+    margin-left: auto;
+    padding: 0;
+    border: 1px solid var(--layout-border);
+    border-radius: 9px;
+    background: var(--layout-surface);
+    color: #b9d6ff;
+    cursor: pointer;
+  }
+
+  .nav-search-toggle:hover,
+  .nav-search-toggle:focus-visible {
+    border-color: #60a5fa;
+    background: #142945;
+    outline: 0;
+  }
+
+  .login-button {
+    margin-left: 0;
+    min-width: 58px;
+    height: 36px;
+    min-height: 0;
+    padding: 0 11px;
+    border-radius: 9px;
     font-size: 12px;
-    font-weight: 700;
   }
 
   .logged-in-actions {
