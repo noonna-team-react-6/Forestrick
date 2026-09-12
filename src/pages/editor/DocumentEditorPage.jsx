@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAI } from "../../hooks/useAI";
 
 import Button from "../../components/common/Button";
 import ModalFrame from "../../components/common/ModalFrame";
-import Loading from "../../components/common/Loading";
+import ProgressModal from "../../components/common/ProgressModal";
+import PageHeader from "../../components/common/PageHeader";
+
+import { getAIStatus } from "../../utils/aiStatus";
 
 import {
   IconSparkles,
@@ -11,7 +14,6 @@ import {
   IconCheck,
 } from "../../components/common/Icons";
 
-import { documents } from "../../data/documents";
 import { EDIT_OPTIONS } from "../../data/constants";
 
 import "./DocumentEditorPage.css";
@@ -24,9 +26,7 @@ function DocumentEditorPage() {
     import.meta.env.VITE_AI_PROVIDER || "gemini",
   );
 
-  const document = documents[0];
-
-  const [content, setContent] = useState(document.content);
+  const [content, setContent] = useState("");
   const [result, setResult] = useState("");
   const [selectedAction, setSelectedAction] = useState("문장 다듬기");
   const [isApplied, setIsApplied] = useState(false);
@@ -34,6 +34,8 @@ function DocumentEditorPage() {
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [previousContent, setPreviousContent] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [showProgressModal, setShowProgressModal] = useState(false);
 
   const handleAction = async (action) => {
     setSelectedAction(action);
@@ -62,10 +64,17 @@ function DocumentEditorPage() {
 
     try {
       setResult("");
+      setShowProgressModal(true);
+      setProgress(0);
 
       const aiResult = await generate(prompt);
 
+      setProgress(100);
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       setResult(aiResult);
+      setShowProgressModal(false);
 
       setHistory((prev) => [
         {
@@ -120,7 +129,7 @@ function DocumentEditorPage() {
     setHistory((prev) => [
       {
         id: Date.now(),
-        action: `"${selectedHistory.action}" 기록으로 돌아가기`,
+        action: selectedHistory.action,
         result: selectedHistory.result,
         time: new Date().toLocaleTimeString("ko-KR", {
           hour: "2-digit",
@@ -158,9 +167,21 @@ function DocumentEditorPage() {
   `;
 
     try {
+      // 진행 모달 시작
+      setShowProgressModal(true);
+      setProgress(10);
+
+      // AI 요청은 한 번만
       const aiResult = await generate(prompt);
 
+      // AI 요청 완료
+      setProgress(100);
+
+      // 100%가 잠깐 보이도록
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       setResult(aiResult);
+      setShowProgressModal(false);
 
       setHistory((prev) => [
         {
@@ -175,29 +196,42 @@ function DocumentEditorPage() {
         ...prev,
       ]);
     } catch (err) {
+      setShowProgressModal(false);
       console.error("AI 요청 실패:", err);
     }
   };
+  useEffect(() => {
+    if (!showProgressModal) return;
+
+    const interval = setInterval(() => {
+      setProgress((current) => {
+        if (current >= 90) {
+          return current;
+        }
+
+        return current + 1;
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [showProgressModal]);
 
   return (
     <div className="editor-page">
-      {/* 페이지 제목 및 설명 */}
-      <section className="editor-page-header">
-        <div>
-          {/* 현재 페이지 위치 */}
-          <div className="editor-eyebrow">WORKSPACE &gt; AI 문서 편집기</div>
+      {showProgressModal && (
+        <ProgressModal
+          progress={progress}
+          title="AI가 문서를 편집하고 있습니다."
+          message="AI가 문서를 편집하고 있어요."
+        />
+      )}
 
-          <h1>AI 문서 편집기</h1>
-
-          <p>비즈니스 문장을 더 정갈하고 자연스럽게 다듬어 보세요.</p>
-        </div>
-
-        {/* AI 사용 가능 상태 표시 */}
-        <div className="ai-status">
-          <span className="status-dot" />
-          AI 준비 완료
-        </div>
-      </section>
+      <PageHeader
+        breadcrumb="AI 문서 편집기"
+        title="AI 문서 편집기"
+        description="비즈니스 문장을 더 정갈하고 자연스럽게 다듬어 보세요."
+        status={getAIStatus()}
+      />
 
       {/* 원문과 AI 결과를 나란히 표시 */}
       <section className="editor-grid">
@@ -266,18 +300,8 @@ function DocumentEditorPage() {
           </div>
 
           {/* AI 결과 출력 영역 */}
-          <div
-            className={`editor-result ${
-              !result && !loading ? "is-placeholder" : ""
-            } ${loading ? "is-loading" : ""}`}
-          >
-            {loading ? (
-              <Loading size="sm" />
-            ) : result ? (
-              result
-            ) : (
-              "편집 결과가 여기에 표시됩니다."
-            )}
+          <div className={`editor-result ${!result ? "is-placeholder" : ""}`}>
+            {result || "편집 결과가 여기에 표시됩니다."}
           </div>
 
           <div className="editor-result-actions">
