@@ -1,19 +1,13 @@
 import { useState } from "react";
 
 import { useAI } from "../../hooks/useAI";
+import useDocuments from "../../hooks/useDocuments";
 import { useProgressSimulation } from "../../hooks/useProgressSimulation";
 import { PROGRESS_MESSAGES } from "../../data/mockTasks";
-import {
-  createAnalysisPrompt,
-  createDocumentPrompt,
-} from "../../utils/assistantPrompts";
+import { createAnalysisPrompt, createDocumentPrompt } from "../../utils/assistantPrompts";
 import { parseAIJson } from "../../utils/aiResponseUtils";
 import { getAIStatus } from "../../utils/aiStatus";
-import {
-  downloadDocumentAsText,
-  printDocumentAsPdf,
-  saveDocument,
-} from "../../utils/documentUtils";
+import { downloadDocumentAsText, printDocumentAsPdf } from "../../utils/documentUtils";
 import AssistantInput from "../../components/assistant/AssistantInput";
 import AnalysisResult from "../../components/assistant/AnalysisResult";
 import GeneratedDocument from "../../components/assistant/GeneratedDocument";
@@ -31,18 +25,13 @@ const normalizeAnalysis = (data) => {
     Array.isArray(data?.actions) && data.actions.length > 0
       ? data.actions.map((item, index) => ({
           id: `action-${index}`,
-          label:
-            typeof item === "string"
-              ? item
-              : item.label || item.title || "작업",
+          label: typeof item === "string" ? item : item.label || item.title || "작업",
         }))
       : [];
 
   return {
     topic: data?.title || data?.taskType || "업무 요청",
-    dateTime:
-      [data?.date, data?.time].filter(Boolean).join(" ") ||
-      "일정 확인 필요",
+    dateTime: [data?.date, data?.time].filter(Boolean).join(" ") || "일정 확인 필요",
     location: data?.location || "장소 확인 필요",
     target: data?.target || "관련 팀",
     summary: data?.summary || "업무 요청을 분석했습니다.",
@@ -51,6 +40,8 @@ const normalizeAnalysis = (data) => {
 };
 
 export default function AssistantPage() {
+  const aiProvider = import.meta.env.VITE_AI_PROVIDER || "gemini";
+  const { addDocument } = useDocuments();
   const [input, setInput] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const [selectedActions, setSelectedActions] = useState([]);
@@ -58,17 +49,9 @@ export default function AssistantPage() {
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  const {
-    generate: generateAnalysis,
-    loading: isAnalyzing,
-    error: analysisError,
-  } = useAI();
+  const { generate: generateAnalysis, loading: isAnalyzing, error: analysisError } = useAI(aiProvider);
 
-  const {
-    generate: generateDocument,
-    loading: isGeneratingDocument,
-    error: generationError,
-  } = useAI();
+  const { generate: generateDocument, loading: isGeneratingDocument, error: generationError } = useAI(aiProvider);
 
   const {
     progress,
@@ -78,10 +61,8 @@ export default function AssistantPage() {
     reset: resetProgress,
   } = useProgressSimulation(PROGRESS_MESSAGES);
 
-  const isGenerating =
-    isGeneratingDocument || progress > 0;
-  const hasSelectedActions =
-    selectedActions.length > 0;
+  const isGenerating = isGeneratingDocument || progress > 0;
+  const hasSelectedActions = selectedActions.length > 0;
 
   const handleInputChange = (value) => {
     setInput(value);
@@ -98,35 +79,22 @@ export default function AssistantPage() {
     setGeneratedDocument(null);
 
     try {
-      const response = await generateAnalysis(
-        createAnalysisPrompt(requestText)
-      );
+      const response = await generateAnalysis(createAnalysisPrompt(requestText));
       const parsedResponse = parseAIJson(response);
-      const normalizedAnalysis =
-        normalizeAnalysis(parsedResponse);
+      const normalizedAnalysis = normalizeAnalysis(parsedResponse);
 
       setAnalysis(normalizedAnalysis);
-      setSelectedActions(
-        normalizedAnalysis.actions.map(
-          (action) => action.id
-        )
-      );
+      setSelectedActions(normalizedAnalysis.actions.map((action) => action.id));
     } catch (error) {
-      console.error(
-        "AI 업무 분석 오류:",
-        error
-      );
+      console.error("AI 업무 분석 오류:", error);
     }
   };
 
   const handleActionToggle = (actionId) => {
     setSelectedActions((previousActions) =>
       previousActions.includes(actionId)
-        ? previousActions.filter(
-            (selectedActionId) =>
-              selectedActionId !== actionId
-          )
-        : [...previousActions, actionId]
+        ? previousActions.filter((selectedActionId) => selectedActionId !== actionId)
+        : [...previousActions, actionId],
     );
   };
 
@@ -136,9 +104,7 @@ export default function AssistantPage() {
     }
 
     const selectedActionLabels = analysis.actions
-      .filter((action) =>
-        selectedActions.includes(action.id)
-      )
+      .filter((action) => selectedActions.includes(action.id))
       .map((action) => action.label);
 
     startProgress();
@@ -148,13 +114,11 @@ export default function AssistantPage() {
         createDocumentPrompt({
           originalRequest: input,
           analysis,
-          selectedActions:
-            selectedActionLabels,
-        })
+          selectedActions: selectedActionLabels,
+        }),
       );
 
-      const parsedResponse =
-        parseAIJson(response);
+      const parsedResponse = parseAIJson(response);
 
       completeProgress(() => {
         setGeneratedDocument(parsedResponse);
@@ -163,50 +127,33 @@ export default function AssistantPage() {
     } catch (error) {
       resetProgress();
 
-      console.error(
-        "AI 문서 생성 오류:",
-        error
-      );
+      console.error("AI 문서 생성 오류:", error);
     }
   };
 
   const handleCopy = async (documentText) => {
-    await navigator.clipboard.writeText(
-      documentText
-    );
+    await navigator.clipboard.writeText(documentText);
 
-    setToastMessage(
-      "문서를 복사했습니다."
-    );
+    setToastMessage("문서를 복사했습니다.");
   };
 
   const handlePrintPdf = (documentText) => {
-    printDocumentAsPdf(
-      generatedDocument?.title,
-      documentText
-    );
+    printDocumentAsPdf(generatedDocument?.title, documentText);
   };
 
   const handleDownloadText = (documentText) => {
-    downloadDocumentAsText(
-      generatedDocument?.title,
-      documentText
-    );
+    downloadDocumentAsText(generatedDocument?.title, documentText);
   };
 
   const handleSave = (documentText) => {
-    saveDocument({
-      title:
-        generatedDocument?.title ||
-        analysis?.topic ||
-        "AI 생성 문서",
-      type: "email",
+    addDocument({
+      title: generatedDocument?.title || analysis?.topic || "AI 생성 문서",
+      category: "이메일",
+      source: "assistant",
       content: documentText,
     });
 
-    setToastMessage(
-      "문서 보관함에 저장했습니다."
-    );
+    setToastMessage("문서 보관함에 저장했습니다.");
   };
 
   const handleResultClose = () => {
@@ -241,12 +188,7 @@ export default function AssistantPage() {
         />
       </section>
 
-      {isGenerating && (
-        <ProgressModal
-          progress={progress}
-          message={progressMessage}
-        />
-      )}
+      {isGenerating && <ProgressModal progress={progress} message={progressMessage} />}
 
       {isResultOpen && generatedDocument && (
         <GeneratedDocument
