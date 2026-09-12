@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { generateAI } from "../api/ai";
 import { generateMockAI } from "../api/aiMock";
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_AI !== "false";
+const USE_MOCK = import.meta.env.USE_MOCK_AI !== "false";
 
 export function useAI(provider = "openai") {
   const [loading, setLoading] = useState(false);
