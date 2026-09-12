@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Loading from "../../components/common/Loading";
 import { IconSpark } from "../../components/common/Icons";
 import ModalFrame from "../../components/common/ModalFrame";
@@ -7,6 +7,7 @@ import Toast, { Error as ErrorToast } from "../../components/common/Toast";
 import OfficialInputPane from "../../components/official/OfficialInputPane";
 import OfficialPreviewPane from "../../components/official/OfficialPreviewPane";
 import { useOfficialDocument } from "../../hooks/official/useOfficialDocument";
+import { useProgressSimulation } from "../../hooks/useProgressSimulation";
 import { getAIStatus } from "../../utils/aiStatus";
 import "./OfficialDocumentPage.css";
 
@@ -80,25 +81,22 @@ export default function OfficialDocumentPage() {
     showDesigns,
     recommendedDesigns,
   } = useOfficialDocument();
-  const [loadingProgress, setLoadingProgress] = useState(0);
   const loadingCopy =
     LOADING_COPY[loadingMessage] ?? LOADING_COPY["문서를 작성하는 중"];
 
+  const {
+    progress: loadingProgress,
+    start: startLoadingProgress,
+    reset: resetLoadingProgress,
+  } = useProgressSimulation();
+
   useEffect(() => {
-    if (!loading) {
-      return undefined;
+    if (loading) {
+      startLoadingProgress();
+    } else {
+      resetLoadingProgress();
     }
-
-    const timer = window.setInterval(() => {
-      setLoadingProgress((previous) => {
-        if (previous >= 92) return previous;
-        const step = previous < 35 ? 7 : previous < 70 ? 4 : 2;
-        return Math.min(92, previous + step);
-      });
-    }, 280);
-
-    return () => window.clearInterval(timer);
-  }, [loading]);
+  }, [loading, startLoadingProgress, resetLoadingProgress]);
 
   return (
     <div className="official-page">

@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import mammoth from "mammoth";
 
 import { useAI } from "../../hooks/useAI";
+import { useProgressSimulation } from "../../hooks/useProgressSimulation";
 import {
   createAnalysisDocumentPrompt,
   createAnalysisDocumentAttachmentPrompt,
@@ -12,16 +13,12 @@ import { IconUpload } from "../../components/common/Icons";
 
 import "./AnalysisPage.css";
 
-const DEFAULT_AI_PROVIDER = "openai";
 // PDF는 Claude/Gemini만 문서를 직접 읽을 수 있어 첨부 시에는 provider를 고정
 const FILE_ATTACHMENT_PROVIDER = "claude";
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 const TEXT_EXTENSIONS = [".txt", ".md"];
 const PDF_MIME_TYPE = "application/pdf";
 const ACCEPTED_EXTENSIONS = [...TEXT_EXTENSIONS, ".pdf", ".docx"];
-const MAX_PROGRESS = 92;
-const COMPLETE_PROGRESS = 100;
-const PROGRESS_INTERVAL = 280;
 const PROGRESS_MESSAGES = [
   { at: 0, text: "문서를 읽고 있습니다." },
   { at: 30, text: "문서 종류를 분류하고 있습니다." },
@@ -69,36 +66,22 @@ export default function AnalysisPage() {
   const [fileName, setFileName] = useState("");
   const [fileError, setFileError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [result, setResult] = useState(null);
   const [attachedFile, setAttachedFile] = useState(null);
   const [isReadingFile, setIsReadingFile] = useState(false);
 
   const fileInputRef = useRef(null);
-  const progressTimerRef = useRef(null);
 
-  const provider = attachedFile ? FILE_ATTACHMENT_PROVIDER : DEFAULT_AI_PROVIDER;
+  const provider = attachedFile ? FILE_ATTACHMENT_PROVIDER : undefined;
   const { generate, loading, error } = useAI(provider);
 
-  useEffect(() => {
-    return () => {
-      if (progressTimerRef.current) {
-        window.clearInterval(progressTimerRef.current);
-      }
-    };
-  }, []);
-
-  const progressMessage = useMemo(() => {
-    let currentMessage = PROGRESS_MESSAGES[0].text;
-
-    PROGRESS_MESSAGES.forEach((message) => {
-      if (progress >= message.at) {
-        currentMessage = message.text;
-      }
-    });
-
-    return currentMessage;
-  }, [progress]);
+  const {
+    progress,
+    message: progressMessage,
+    start: startProgress,
+    complete: completeProgress,
+    reset: resetProgress,
+  } = useProgressSimulation(PROGRESS_MESSAGES);
 
   const isAnalyzing = loading || progress > 0;
 
@@ -198,20 +181,7 @@ export default function AnalysisPage() {
     }
 
     setResult(null);
-    setProgress(6);
-
-    progressTimerRef.current = window.setInterval(() => {
-      setProgress((previousProgress) => {
-        if (previousProgress >= MAX_PROGRESS) {
-          return previousProgress;
-        }
-
-        const progressStep =
-          previousProgress < 35 ? 7 : previousProgress < 70 ? 4 : 2;
-
-        return Math.min(MAX_PROGRESS, previousProgress + progressStep);
-      });
-    }, PROGRESS_INTERVAL);
+    startProgress();
 
     try {
       const response = attachedFile
@@ -227,16 +197,11 @@ export default function AnalysisPage() {
         : await generate(createAnalysisDocumentPrompt(documentText));
       const parsedResponse = parseAIJson(response);
 
-      window.clearInterval(progressTimerRef.current);
-      setProgress(COMPLETE_PROGRESS);
-
-      window.setTimeout(() => {
+      completeProgress(() => {
         setResult(normalizeResult(parsedResponse));
-        setProgress(0);
       }, 400);
     } catch (analyzeError) {
-      window.clearInterval(progressTimerRef.current);
-      setProgress(0);
+      resetProgress();
 
       console.error("문서 분석 오류:", analyzeError);
     }
