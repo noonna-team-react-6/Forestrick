@@ -9,7 +9,7 @@ import OfficialPreviewPane from "../../components/official/OfficialPreviewPane";
 import { useOfficialDocument } from "../../hooks/official/useOfficialDocument";
 import { useProgressSimulation } from "../../hooks/useProgressSimulation";
 import { getAIStatus } from "../../utils/aiStatus";
-import "./OfficialDocumentPage.css";
+import "../../styles/official/OfficialDocumentPage.css";
 
 const LOADING_COPY = {
   "문서를 작성하는 중": {

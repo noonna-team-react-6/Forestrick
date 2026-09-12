@@ -5,7 +5,9 @@
   isolation: isolate;
   overflow: hidden;
   width: min(100%, 420px);
+  max-width: 210mm;
   min-height: 640px;
+  max-height: 297mm;
   margin-inline: auto;
   padding: 48px 36px 44px;
   color: #5c4a3a;

@@ -16,6 +16,11 @@ const PRINT_STYLES = `
   }
 
   .preview-paper {
+    box-sizing: border-box;
+    width: min(100%, 210mm) !important;
+    max-width: 210mm !important;
+    max-height: 297mm !important;
+    overflow: hidden !important;
     box-shadow: none !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -96,6 +101,65 @@ async function waitForPrintAssets(doc) {
       });
     }),
   );
+}
+
+function safeFileName(title) {
+  return String(title || "문서").replace(/[\\/:*?"<>|]+/g, "_").trim() || "문서";
+}
+
+function addCanvasToPage(doc, canvas) {
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 10;
+  const maxW = pageW - margin * 2;
+  const maxH = pageH - margin * 2;
+  let imgW = maxW;
+  let imgH = (canvas.height * imgW) / canvas.width;
+
+  if (imgH > maxH) {
+    imgH = maxH;
+    imgW = (canvas.width * imgH) / canvas.height;
+  }
+
+  const x = margin + (maxW - imgW) / 2;
+  doc.addImage(canvas, "PNG", x, margin, imgW, imgH);
+}
+
+export async function downloadPreviewPdf(paper, { title = "문서" } = {}) {
+  if (!paper) {
+    throw new Error("미리보기가 없습니다.");
+  }
+
+  const [{ jsPDF }, html2canvas] = await Promise.all([
+    import("jspdf"),
+    import("html2canvas"),
+  ]);
+
+  const canvas = await html2canvas.default(paper, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+    onclone: (clonedDoc) => {
+      clonedDoc.querySelectorAll(".preview-paper").forEach((node) => {
+        node.style.boxShadow = "none";
+      });
+      clonedDoc.querySelectorAll("input, textarea").forEach((el) => {
+        el.replaceWith(clonedDoc.createTextNode(el.value || ""));
+      });
+      clonedDoc.querySelectorAll("[contenteditable]").forEach((el) => {
+        el.removeAttribute("contenteditable");
+      });
+    },
+  });
+
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  addCanvasToPage(doc, canvas);
+  doc.save(`${safeFileName(title)}.pdf`);
 }
 
 export async function printPreviewPaper(paper, { title = "문서" } = {}) {

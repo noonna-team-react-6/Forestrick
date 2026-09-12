@@ -11,6 +11,7 @@ import { findType, isCardType, PREVIEW_TEMPLATES } from "../../data/official";
 import DocumentPreview from "./DocumentPreview";
 import { ToneButtons } from "./DocumentTone";
 import {
+  downloadPreviewPdf,
   getPreviewText,
   printPreviewPaper,
 } from "../../utils/previewExport";
@@ -80,10 +81,16 @@ export default function OfficialPreviewPane({
     }
   };
 
-  const handlePdf = () => {
-    onExportError?.(
-      "PDF 저장 라이브러리를 제거해 지금은 파일을 받을 수 없습니다.",
-    );
+  const handlePdf = async () => {
+    setExporting(true);
+    try {
+      await downloadPreviewPdf(paperRef.current, { title: fileTitle });
+      onCopySuccess?.("PDF를 저장했습니다.");
+    } catch (err) {
+      onExportError?.(err?.message || "PDF 저장에 실패했습니다.");
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (

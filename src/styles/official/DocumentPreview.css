@@ -1,11 +1,14 @@
 .preview-paper {
   position: relative;
   isolation: isolate;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: min(100%, 210mm);
+  max-width: 210mm;
+  max-height: 297mm;
   height: auto;
-  overflow: visible;
+  overflow: hidden;
   padding: 56px 48px 48px;
   color: #1e293b;
   background: #f6f0e4;
