@@ -12,7 +12,9 @@ import { parseAIJson } from "../../utils/aiResponseUtils";
 import ProgressModal from "../../components/common/ProgressModal";
 import Toast, { Error as ErrorToast } from "../../components/common/Toast";
 import Button from "../../components/common/Button";
+import PageHeader from "../../components/common/PageHeader";
 import { IconUpload, IconDownload } from "../../components/common/Icons";
+import { getAIStatus } from "../../utils/aiStatus";
 
 import "./AnalysisPage.css";
 
@@ -279,22 +281,12 @@ export default function AnalysisPage() {
 
   return (
     <main className="analysis-page">
-      <div className="analysis-heading">
-        <div>
-          <div className="analysis-breadcrumb">
-            WORKSPACE <span>›</span> 문서 분석기
-          </div>
-
-          <h1>문서 분석기</h1>
-
-          <p>문서 속 담당자·업무·마감일을 찾아 Task로 연결해요.</p>
-        </div>
-
-        <span className="analysis-ready-badge">
-          <i />
-          AI 준비 완료
-        </span>
-      </div>
+      <PageHeader
+        breadcrumb="문서 분석기"
+        title="문서 분석기"
+        description="문서 속 담당자·업무·마감일을 찾아 Task로 연결해요."
+        status={loading ? "loading" : getAIStatus()}
+      />
 
       <section className="analysis-card">
         <div
