@@ -12,6 +12,7 @@ import AssistantInput from "../../components/assistant/AssistantInput";
 import AnalysisResult from "../../components/assistant/AnalysisResult";
 import GeneratedDocument from "../../components/assistant/GeneratedDocument";
 import ProgressModal from "../../components/common/ProgressModal";
+import ModalFrame from "../../components/common/ModalFrame";
 import PageHeader from "../../components/common/PageHeader";
 import Toast from "../../components/common/Toast";
 
@@ -191,14 +192,21 @@ export default function AssistantPage() {
       {isGenerating && <ProgressModal progress={progress} message={progressMessage} />}
 
       {isResultOpen && generatedDocument && (
-        <GeneratedDocument
-          document={generatedDocument}
+        <ModalFrame
+          open={isResultOpen}
           onClose={handleResultClose}
-          onCopy={handleCopy}
-          onPrintPdf={handlePrintPdf}
-          onDownloadText={handleDownloadText}
-          onSave={handleSave}
-        />
+          width="large"
+          className="assistant-result-modal-frame"
+        >
+          <GeneratedDocument
+            document={generatedDocument}
+            onClose={handleResultClose}
+            onCopy={handleCopy}
+            onPrintPdf={handlePrintPdf}
+            onDownloadText={handleDownloadText}
+            onSave={handleSave}
+          />
+        </ModalFrame>
       )}
 
       <Toast

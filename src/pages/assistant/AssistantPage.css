@@ -321,9 +321,11 @@
   margin-top: auto;
 }
 
-.result-backdrop {
-  align-items: center;
-  overflow-y: auto;
+.assistant-result-modal-frame {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .result-modal {
