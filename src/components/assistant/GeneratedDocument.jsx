@@ -42,41 +42,40 @@ export default function GeneratedDocument({
   };
 
   return (
-    <div
-      className="modal-backdrop result-backdrop"
+    <section
+      className="result-modal"
       role="dialog"
       aria-modal="true"
       aria-label="AI 생성 결과"
     >
-      <div className="result-modal">
-        <div className="result-modal-header">
-          <div>
-            <span className="result-kicker">
-              AI 생성 완료
-            </span>
-            <h2>생성 결과</h2>
-          </div>
-
-          <button
-            className="icon-close"
-            type="button"
-            aria-label="생성 결과 닫기"
-            onClick={onClose}
-          >
-            ×
-          </button>
+      <div className="result-modal-header">
+        <div>
+          <span className="result-kicker">
+            AI 생성 완료
+          </span>
+          <h2>생성 결과</h2>
         </div>
 
-        <div className="result-tabs">
-          <button
-            className="active"
-            type="button"
-          >
-            이메일
-          </button>
-        </div>
+        <button
+          className="icon-close"
+          type="button"
+          aria-label="생성 결과 닫기"
+          onClick={onClose}
+        >
+          ×
+        </button>
+      </div>
 
-        <div className="document-paper">
+      <div className="result-tabs">
+        <button
+          className="active"
+          type="button"
+        >
+          이메일
+        </button>
+      </div>
+
+      <div className="document-paper">
           {isEditing ? (
             <textarea
               className="document-editor"
@@ -143,9 +142,9 @@ export default function GeneratedDocument({
               </div>
             </>
           )}
-        </div>
+      </div>
 
-        <div className="result-actions">
+      <div className="result-actions">
           <div className="action-group">
             <button
               type="button"
@@ -194,8 +193,7 @@ export default function GeneratedDocument({
           >
             저장
           </button>
-        </div>
       </div>
-    </div>
+    </section>
   );
 }
